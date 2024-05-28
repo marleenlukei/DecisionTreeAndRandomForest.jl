@@ -1,0 +1,7 @@
+name = "DecisionTreeAndRandomForest"
+uuid = "2e1a1f2f-ab8e-43f0-b75f-c7407e5d21e0"
+authors = ["Marleen Lukei marleen.lukei@campus.tu-berlin.de>"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.10"

@@ -1,0 +1,3 @@
+[deps]
+DecisionTreeAndRandomForest = "2e1a1f2f-ab8e-43f0-b75f-c7407e5d21e0"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
