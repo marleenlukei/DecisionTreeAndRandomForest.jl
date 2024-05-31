@@ -1,5 +1,7 @@
 module DecisionTreeAndRandomForest
 
-# Write your package code here.
+include("ClassificationTree.jl")
+
+export ClassificationTree
 
 end
