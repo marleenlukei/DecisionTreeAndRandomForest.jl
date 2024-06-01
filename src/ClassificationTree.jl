@@ -3,14 +3,26 @@ mutable struct Leaf{L}
 end
 
 mutable struct Node{T, L}
-    left::Union{Node{T, L}, Leaf{L}}
-    right::Union{Node{T, L}, Leaf{L}}
+    # I would like to have it typed like this, but then it can not be initialized with 'missing'
+    # left::Union{Node{T, L}, Leaf{L}}
+    # right::Union{Node{T, L}, Leaf{L}}
+    left
+    right
 
     feature_index::Int
     split_value::T
+
+    data::Matrix{T}
+    labels::Vector{L}
+
+    Node(data::Matrix{T}, labels::Vector{L}) where {T, L} = new{T, L}(missing, missing, missing, missing, data, labels)
 end
 
-function fit(node::Node, splitting_criterion::Function, data::Matrix{T}, labels::Vector{L}) where {T, L}
+"""
+max_depth describes the depth that is left from this point on.
+If max_depth is -1 the depth is unlimited.
+"""
+function fit(node::Node, splitting_criterion::Function, max_depth::Int)
     # TODO
     # 1. evaluate the best split using the splitting_criterion function
     # 2. assign the returned feature and value to the attributes in the node
@@ -24,26 +36,22 @@ mutable struct ClassificationTree{T, L}
     """
     max_depth::Int
 
-    left::Union{Node{T, L}, Leaf{L}}
-    right::Union{Node{T, L}, Leaf{L}}
-
-    feature_index::Int
-    split_value::T
+    root
+    # I would like to have it typed like this, but then it can not be initialized with 'missing'
+    # root::Union{Node{T, L}, Leaf{L}}
 
     data::Matrix{T}
     labels::Vector{L}
 
-    ClassificationTree(max_depth::Int, data::Matrix{T}, labels::Vector{L}) where {T, L} = new{T, L}(max_depth, Leaf{L}([]), Leaf{L}([]), -1, zero(T), data, labels)
+    # TODO check if the shapes of data and labels match
+    ClassificationTree(max_depth::Int, data::Matrix{T}, labels::Vector{L}) where {T, L} = new{T, L}(max_depth, missing, data, labels)
 end
 
-ClassificationTree(data::Matrix{T}, labels::Vector{L}) where {T, L} = ClassificationTree(-1, data, labels)
+ClassificationTree(data, labels) = ClassificationTree(-1, data, labels)
 
-function fit(tree::ClassificationTree, splitting_criterion::Function, data::Matrix{T}, labels::Vector{L}) where {T, L}
-    # TODO
-    # 1. evaluate the best split using the splitting_criterion function
-    # 2. assign the returned feature and value to the attributes in the tree
-    # 3. create the left and right subtrees
-    # 4. call fit on the subtrees with the respective data left until max_depth is reached or at a leaf
+function fit(tree::ClassificationTree, splitting_criterion::Function)
+    tree.root = Node(tree.data, tree.labels)
+    fit(tree.root, splitting_criterion, tree.max_depth - 1)
 end
 
 function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
