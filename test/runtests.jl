@@ -34,21 +34,54 @@ end
 
 
 @testset "find_best_split" begin  
-    Emotion=["sick","sick","notsick","notsick","notsick","sick","notsick","notsick"]
-    Temperature = ["under","over","under","under","over","over","under","over"]
-    StayHome=['N','Y','Y','N','Y','N','N','Y']
-    Input = hcat(Emotion, Temperature)  
-    StayHome = ['N', 'Y', 'Y', 'N', 'Y', 'N', 'N', 'Y']  
-    feature_index1, feature_value1 = find_best_split(Input, StayHome)  
-    @test feature_index1 == 2  
-    @test feature_value1 == "over" 
+    X = [
+        "sick" "under";
+        "sick" "over";
+        "notsick" "under";
+        "notsick" "under";
+        "notsick" "over";
+        "sick" "over";
+        "notsick" "under";
+        "notsick" "over"
+    ]
+    Y = ['N', 'Y', 'Y', 'N', 'Y', 'N', 'N', 'Y']  
+    feature_index, feature_value = find_best_split(X, Y)  
+    @test feature_index == 2  
+    
+    X = ["tech" "professional";
+                "fashion" "student";
+                "fashion" "professional";
+                "sports" "student";
+                "tech" "student";
+                "tech" "retired";
+                "sports" "professional"]
+    Y = [1, 1, 1, 0, 0, 1, 0] 
+    feature_index, feature_value = find_best_split(X, Y)
+    @test feature_index == 1
+    @test feature_value == "sports"
 
-    Feature1 = [1.0, 2.0, 3.0, 3.0, 2.0]  
-    Feature2 = [2.0, 3.0, 4.0, 5.0, 6.0] 
-    Input = hcat(Feature1, Feature2)   
-    Label = [0, 0, 1, 1, 0]  
-    feature_index2, feature_value2 = find_best_split(Input, Label)  
-    @test feature_index2 == 1  
-    @test feature_value2 == 2.0   
+    X = [
+        "youth" "high" "no" "fair";
+        "youth" "high" "no" "excellent";
+        "middle_age" "high" "no" "fair";
+        "senior" "medium" "no" "fair";
+        "senior" "low" "yes" "fair";
+        "senior" "low" "yes" "excellent";
+        "middle_age" "low" "yes" "excellent";
+        "youth" "medium" "no" "fair";
+        "youth" "low" "yes" "fair";
+        "senior" "medium" "yes" "fair";
+        "youth" "medium" "yes" "excellent";
+        "middle_age" "medium" "no" "excellent";
+        "middle_age" "high" "yes" "fair";
+        "senior" "medium" "no" "excellent"
+        ]
+
+    Y = ["no", "no", "yes", "yes", "yes", "no", "yes", "no", "yes", "yes", "yes", "yes", "yes", "no"]
+    feature_index, feature_value = find_best_split(X, Y) 
+    @test feature_index == 1  
+    @test feature_value == "middle_age"
+ 
+
 
 end
