@@ -29,12 +29,12 @@ mutable struct Node{T, L}
     right::Union{Node{T, L}, Leaf{L}, Missing}
 
     feature_index::Int
-    split_value::T
+    split_value::Union{T, Missing}
 
     data::Matrix{T}
     labels::Vector{L}
 
-    Node(data::Matrix{T}, labels::Vector{L}) where {T, L} = new{T, L}(missing, missing, -1, zero(T), data, labels)
+    Node(data::Matrix{T}, labels::Vector{L}) where {T, L} = new{T, L}(missing, missing, -1, missing, data, labels)
 end
 
 """
@@ -92,8 +92,13 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     # split_value = data[rand((1:size(data, 1))), feature_index]
 
     # Create the mask on the data
-    left_mask = data[:, feature_index] .< split_value
-    right_mask = data[:, feature_index] .>= split_value
+    if isa(split_value, Number)
+        left_mask = data[:, feature_index] .< split_value
+        right_mask = data[:, feature_index] .>= split_value
+    else
+        left_mask = data[:, feature_index] .!= split_value
+        right_mask = data[:, feature_index] .== split_value
+    end
 
     # If the data can not be split further, return a leaf
     if allequal(left_mask) || allequal(right_mask)
@@ -139,10 +144,18 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
     for i in 1:size(data, 1)
         node = tree.root
         while !isa(node, Leaf)
-            if data[i, node.feature_index] < node.split_value
-                node = node.left
+            if isa(node.split_value, Number)
+                if data[i, node.feature_index] < node.split_value
+                    node = node.left
+                else
+                    node = node.right
+                end
             else
-                node = node.right
+                if data[i, node.feature_index] != node.split_value
+                    node = node.left
+                else
+                    node = node.right
+                end
             end
         end
         # Get the label that occurs the most and add it to predictions
@@ -160,21 +173,23 @@ end
 function print(node::Node, level::Int) 
     indentation = ""
     for i in 1:level
-        indentation *= "-"
+        indentation *= "--"
     end
 
     println("$indentation Feature Index: $(node.feature_index)")
     println("$indentation Data for index: $(node.data[:, node.feature_index])")
     println("$indentation Labels: $(node.labels)")
     println("$indentation Split Value: $(node.split_value)")
+    println("$indentation-- Left")
     print(node.left, level + 1)
+    println("$indentation-- Right")
     print(node.right, level + 1)
 end
 
 function print(leaf::Leaf, level::Int)
     indentation = ""
     for i in 1:level
-        indentation *= "-"
+        indentation *= "--"
     end
     println("$indentation Labels: $(leaf.values)")
 end
