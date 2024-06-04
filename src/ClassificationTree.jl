@@ -86,9 +86,10 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     end
     
     # Get the best split from the respective split_criterion
+    feature_index, split_value = find_best_split(data, labels)
     # Random values for testing purposes
-    feature_index = rand((1:size(data, 2)))
-    split_value = data[rand((1:size(data, 1))), feature_index]
+    # feature_index = rand((1:size(data, 2)))
+    # split_value = data[rand((1:size(data, 1))), feature_index]
 
     # Create the mask on the data
     left_mask = data[:, feature_index] .<= split_value
