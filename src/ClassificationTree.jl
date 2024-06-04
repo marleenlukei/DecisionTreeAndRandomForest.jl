@@ -92,8 +92,8 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     # split_value = data[rand((1:size(data, 1))), feature_index]
 
     # Create the mask on the data
-    left_mask = data[:, feature_index] .<= split_value
-    right_mask = data[:, feature_index] .> split_value
+    left_mask = data[:, feature_index] .< split_value
+    right_mask = data[:, feature_index] .>= split_value
 
     # If the data can not be split further, return a leaf
     if allequal(left_mask) || allequal(right_mask)
@@ -139,7 +139,7 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
     for i in 1:size(data, 1)
         node = tree.root
         while !isa(node, Leaf)
-            if data[i, node.feature_index] <= node.split_value
+            if data[i, node.feature_index] < node.split_value
                 node = node.left
             else
                 node = node.right
