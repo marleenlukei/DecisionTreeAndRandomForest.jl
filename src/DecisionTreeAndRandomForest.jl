@@ -2,6 +2,6 @@ module DecisionTreeAndRandomForest
 
 include("ClassificationTree.jl")
 
-export ClassificationTree
+export ClassificationTree, fit, predict
 
 end
