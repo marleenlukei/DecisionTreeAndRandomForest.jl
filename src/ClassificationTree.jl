@@ -164,6 +164,11 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
     return predictions
 end
 
+"""
+    print_tree(tree:ClassificationTree)
+
+Prints the tree structure. Mainly used for debugging purposes.
+"""
 function print_tree(tree::ClassificationTree)
     node = tree.root
     level = 1
