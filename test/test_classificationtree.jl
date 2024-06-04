@@ -8,6 +8,7 @@ using Test
     fit(tree)
     test_data = [0 38.0; 1 38.0]
     prediction = predict(tree, test_data)
+    printTree(tree)
     @test prediction[1] == "healthy"
     @test prediction[2] == "sick"
 end

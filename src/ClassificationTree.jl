@@ -149,3 +149,31 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
     end
     return predictions
 end
+
+function print_tree(tree::ClassificationTree)
+    node = tree.root
+    level = 1
+    print(node, level)
+end
+
+function print(node::Node, level::Int) 
+    indentation = ""
+    for i in 1:level
+        indentation *= "-"
+    end
+
+    println("$indentation Feature Index: $(node.feature_index)")
+    println("$indentation Data for index: $(node.data[:, node.feature_index])")
+    println("$indentation Labels: $(node.labels)")
+    println("$indentation Split Value: $(node.split_value)")
+    print(node.left, level + 1)
+    print(node.right, level + 1)
+end
+
+function print(leaf::Leaf, level::Int)
+    indentation = ""
+    for i in 1:level
+        indentation *= "-"
+    end
+    println("$indentation Labels: $(leaf.values)")
+end
