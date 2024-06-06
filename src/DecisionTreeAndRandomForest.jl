@@ -1,5 +1,4 @@
 module DecisionTreeAndRandomForest
 
-# Write your package code here.
-
+include("GiniImpurity.jl")
 end
