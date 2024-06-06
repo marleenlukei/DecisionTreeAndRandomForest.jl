@@ -1,5 +1,6 @@
-using DecisionTreeAndRandomForest
 using Test
+include("../src/GiniImpurity.jl")
+
 
 @testset "gini_impurity" begin
     labels = [1, 1, 0, 1, 0, 0]

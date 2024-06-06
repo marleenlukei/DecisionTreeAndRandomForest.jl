@@ -1,4 +1,4 @@
-using StatsBase
+using StatsBase: mode
 
 """
 Represents a Leaf in the ClassificationTree structure.
