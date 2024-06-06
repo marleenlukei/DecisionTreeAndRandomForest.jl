@@ -84,7 +84,7 @@ function find_best_split(data::Matrix{T}, labels::Vector{L}) where {T, L}
     num_features = size(data, 2)
     for feature_index in 1:num_features  
         value = data[:, feature_index]  
-        unique_value = unique(unique_value)  
+        unique_value = unique(value)  
         for value in unique_value  
             left_labels,right_labels = split_node(data, labels, feature_index, value) 
             gini = weighted_gini(left_labels, right_labels)  
