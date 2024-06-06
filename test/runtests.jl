@@ -2,5 +2,5 @@ using DecisionTreeAndRandomForest
 using Test
 
 @testset "DecisionTreeAndRandomForest.jl" begin
-    # Write your tests here.
+    include("Information_Gain_test.jl")
 end
