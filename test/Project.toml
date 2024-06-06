@@ -1,2 +1,5 @@
 [deps]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Random = "9e6b8b0a-5919-5eb0-85ad-87a2b18d5d5c"
+Statistics = "10745b16-4939-5b2c-941a-7f2744aefc8a"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
