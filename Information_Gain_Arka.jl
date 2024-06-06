@@ -1,26 +1,38 @@
-
 using Random
 using Statistics
 using StatsBase  # Importing StatsBase for the countmap function
 
 """
-    entropy(y::Vector)
+    entropy(y::Vector{T}) where T
 
 Calculate the entropy of a vector of labels `y`.
+
+# Arguments
+- `y`: A vector of labels.
+
+# Returns
+- The entropy of the vector.
 """
-function entropy(y::Vector)
+function entropy(y::Vector{T}) where T
     counts = countmap(y)
     probs = values(counts) ./ length(y)
     return -sum(p -> p > 0 ? p * log2(p) : 0, probs)
 end
 
 """
-    information_gain(y::Vector, y_left::Vector, y_right::Vector)
+    information_gain(y::Vector{T}, y_left::Vector{T}, y_right::Vector{T}) where T
 
-Calculate the Information Gain of a split. `y` is the original labels vector, `y_left` and `y_right` are the labels vectors
-for the left and right splits, respectively.
+Calculate the Information Gain of a split.
+
+# Arguments
+- `y`: The original labels vector.
+- `y_left`: The labels vector for the left split.
+- `y_right`: The labels vector for the right split.
+
+# Returns
+- The Information Gain of the split.
 """
-function information_gain(y::Vector, y_left::Vector, y_right::Vector)
+function information_gain(y::Vector{T}, y_left::Vector{T}, y_right::Vector{T}) where T
     H = entropy(y)
     H_left = entropy(y_left)
     H_right = entropy(y_right)
@@ -30,12 +42,22 @@ function information_gain(y::Vector, y_left::Vector, y_right::Vector)
 end
 
 """
-    split_dataset(X::Matrix, y::Vector, feature::Int, threshold::Real)
+    split_dataset(X::AbstractMatrix{T}, y::Vector{T}, feature::Int, threshold::Real) where T
 
 Split the dataset `X` and labels `y` based on a `feature` and a `threshold`.
 Returns the left and right splits for both `X` and `y`.
+
+# Arguments
+- `X`: A matrix of features.
+- `y`: A vector of labels.
+- `feature`: The index of the feature to split on.
+- `threshold`: The threshold value to split the feature.
+
+# Returns
+- `X_left`, `y_left`: The left split of the dataset and labels.
+- `X_right`, `y_right`: The right split of the dataset and labels.
 """
-function split_dataset(X::Matrix, y::Vector, feature::Int, threshold::Real)
+function split_dataset(X::AbstractMatrix{T}, y::Vector{T}, feature::Int, threshold::Real) where T
     left_indices = findall(x -> x[feature] <= threshold, eachrow(X))
     right_indices = findall(x -> x[feature] > threshold, eachrow(X))
     X_left = X[left_indices, :]
@@ -46,12 +68,20 @@ function split_dataset(X::Matrix, y::Vector, feature::Int, threshold::Real)
 end
 
 """
-    best_split(X::Matrix, y::Vector)
+    best_split(X::AbstractMatrix{T}, y::Vector{T}) where T
 
 Find the best split for the dataset `X` and labels `y` based on Information Gain.
 Returns the best feature and threshold for the split.
+
+# Arguments
+- `X`: A matrix of features.
+- `y`: A vector of labels.
+
+# Returns
+- `best_feature`: The index of the best feature to split on.
+- `best_threshold`: The threshold value for the best split.
 """
-function best_split(X::Matrix, y::Vector)
+function best_split(X::AbstractMatrix{T}, y::Vector{T}) where T
     best_gain = -Inf
     best_feature = -1
     best_threshold = 0.0
