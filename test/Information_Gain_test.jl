@@ -1,88 +1,53 @@
-using DecisionTreeAndRandomForest
+using Random
+using Statistics
+using StatsBase  # Importing StatsBase for the countmap function..
 using Test
 
-@testset "entropy" begin
-    labels = [1, 1, 0, 1, 0, 0]
-    @test entropy(labels) ≈ 1.0
+# Import the functions from your Information Gain implementation..
+include("..\\Information_Gain_Arka.jl")
 
-    labels = [1, 1, 1, 1, 1, 1]
-    @test entropy(labels) ≈ 0.0
-
-    labels = [1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
-    @test entropy(labels) ≈ -(8/10 * log2(8/10) + 2/10 * log2(2/10))
-
-    labels = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
-    @test entropy(labels) ≈ -(4/10 * log2(4/10) + 6/10 * log2(6/10))
+# Test cases for entropy
+@testset "Entropy" begin
+    @test entropy([1, 1, 1, 1]) == 0
+    @test entropy([1, 0, 1, 0]) ≈ 1
+    @test entropy([1, 1, 0, 0, 0, 1, 1, 0]) ≈ 1
 end
 
-@testset "information_gain" begin
-    y = [1, 1, 0, 1, 0, 0]
-    y_left = [1, 1, 0]
-    y_right = [1, 0, 0]
+# Test cases for information_gain
+@testset "Information Gain" begin
+    y = [1, 1, 0, 0, 0, 1, 1, 0]
+    y_left = [1, 1, 0, 0]
+    y_right = [0, 1, 1, 0]
     @test information_gain(y, y_left, y_right) ≈ 0.0
 
-    y = [1, 1, 1, 0, 0, 0]
-    y_left = [1, 1, 1]
-    y_right = [0, 0, 0]
-    @test information_gain(y, y_left, y_right) ≈ 1.0
-
-    y = [1, 1, 1, 1, 0, 0, 0, 0]
     y_left = [1, 1, 1, 1]
     y_right = [0, 0, 0, 0]
     @test information_gain(y, y_left, y_right) ≈ 1.0
-
-    y = [1, 1, 0, 0, 0, 0, 1, 1]
-    y_left = [1, 1, 0, 0]
-    y_right = [0, 0, 1, 1]
-    @test information_gain(y, y_left, y_right) ≈ 0.0
 end
 
-@testset "find_best_split_ig" begin
-    X = [
-        "sick" "under";
-        "sick" "over";
-        "notsick" "under";
-        "notsick" "under";
-        "notsick" "over";
-        "sick" "over";
-        "notsick" "under";
-        "notsick" "over"
-    ]
-    Y = ['N', 'Y', 'Y', 'N', 'Y', 'N', 'N', 'Y']  
-    feature_index, feature_value = find_best_split(X, Y)  
-    @test feature_index == 2  
-    
-    X = ["tech" "professional";
-                "fashion" "student";
-                "fashion" "professional";
-                "sports" "student";
-                "tech" "student";
-                "tech" "retired";
-                "sports" "professional"]
-    Y = [1, 1, 1, 0, 0, 1, 0] 
-    feature_index, feature_value = find_best_split(X, Y)
-    @test feature_index == 1
-    @test feature_value == "sports"
+# Test cases for split_dataset
+@testset "Split Dataset" begin
+    X = [1.0 2.0; 3.0 4.0; 1.5 0.5; 3.5 3.5]
+    y = [0, 1, 0, 1]
+    X_left_expected = [1.0 2.0; 1.5 0.5]
+    y_left_expected = [0, 0]
+    X_right_expected = [3.0 4.0; 3.5 3.5]
+    y_right_expected = [1, 1]
 
-    X = [
-        "youth" "high" "no" "fair";
-        "youth" "high" "no" "excellent";
-        "middle_age" "high" "no" "fair";
-        "senior" "medium" "no" "fair";
-        "senior" "low" "yes" "fair";
-        "senior" "low" "yes" "excellent";
-        "middle_age" "low" "yes" "excellent";
-        "youth" "medium" "no" "fair";
-        "youth" "low" "yes" "fair";
-        "senior" "medium" "yes" "fair";
-        "youth" "medium" "yes" "excellent";
-        "middle_age" "medium" "no" "excellent";
-        "middle_age" "high" "yes" "fair";
-        "senior" "medium" "no" "excellent"
-        ]
+    X_left, y_left, X_right, y_right = split_dataset(X, y, 1, 2.0)
+    @test X_left == X_left_expected
+    @test y_left == y_left_expected
+    @test X_right == X_right_expected
+    @test y_right == y_right_expected
+end
 
-    Y = ["no", "no", "yes", "yes", "yes", "no", "yes", "no", "yes", "yes", "yes", "yes", "yes", "no"]
-    feature_index, feature_value = find_best_split(X, Y) 
-    @test feature_index == 1  
-    @test feature_value == "middle_age"
+# Test cases for best_split
+@testset "Best Split" begin
+ 
+
+    X = [1.0 2.0; 3.0 4.0; 2.5 0.5; 4.0 3.0]
+    y = [0, 1, 0, 1]
+    best_feature, best_threshold = best_split(X, y)
+    @test best_feature == 1
+    @test best_threshold == 2.5
 end
