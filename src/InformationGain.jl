@@ -1,6 +1,6 @@
 using Random
 using Statistics
-using StatsBase  # Importing StatsBase for the countmap function
+using StatsBase: countmap
 
 """
     entropy(y::Vector{T}) where T
@@ -57,7 +57,7 @@ Returns the left and right splits for both `X` and `y`.
 - `X_left`, `y_left`: The left split of the dataset and labels.
 - `X_right`, `y_right`: The right split of the dataset and labels.
 """
-function split_dataset(X::AbstractMatrix{T}, y::Vector{T}, feature::Int, threshold::Real) where T
+function split_dataset(X::AbstractMatrix{T}, y::Vector{L}, feature::Int, threshold::Real) where {T, L}
     left_indices = findall(x -> x[feature] <= threshold, eachrow(X))
     right_indices = findall(x -> x[feature] > threshold, eachrow(X))
     X_left = X[left_indices, :]
@@ -81,7 +81,7 @@ Returns the best feature and threshold for the split.
 - `best_feature`: The index of the best feature to split on.
 - `best_threshold`: The threshold value for the best split.
 """
-function best_split(X::AbstractMatrix{T}, y::Vector{T}) where T
+function best_split(X::AbstractMatrix{T}, y::Vector{L}) where {T, L}
     best_gain = -Inf
     best_feature = -1
     best_threshold = 0.0

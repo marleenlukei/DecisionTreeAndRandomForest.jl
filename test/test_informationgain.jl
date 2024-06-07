@@ -1,10 +1,10 @@
 using Random
 using Statistics
-using StatsBase  # Importing StatsBase for the countmap function..
+using StatsBase: countmap
 using Test
 
 # Import the functions from your Information Gain implementation..
-include("..\\Information_Gain_Arka.jl")
+include("../src/InformationGain.jl")
 
 # Test cases for entropy
 @testset "Entropy" begin
