@@ -13,12 +13,12 @@ makedocs(
     ],
     format=Documenter.HTML(;
         canonical="https://marleenlukei.github.io/DecisionTreeAndRandomForest.jl",
-        edit_link="main",
+        edit_link="master",
         assets=String[],
     ),
 )
 
 deploydocs(;
     repo="github.com/marleenlukei/DecisionTreeAndRandomForest.jl",
-    devbranch="main",
+    devbranch="feature/documentation",
 )
