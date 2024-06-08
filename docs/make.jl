@@ -20,5 +20,5 @@ makedocs(
 
 deploydocs(;
     repo="github.com/marleenlukei/DecisionTreeAndRandomForest.jl",
-    devbranch="feature/documentation",
+    devbranch="main",
 )
