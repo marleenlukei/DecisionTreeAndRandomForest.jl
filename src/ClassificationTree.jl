@@ -84,6 +84,11 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth) 
         return Leaf{L}(labels)                                                       
     end
+
+    # if all the labels are the same, return a leaf
+    if allequal(labels) 
+        return Leaf{L}(labels)
+    end
     
     # Get the best split from the respective split_criterion
     feature_index, split_value = find_best_split(data, labels)
@@ -98,11 +103,6 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     else
         left_mask = data[:, feature_index] .!= split_value
         right_mask = data[:, feature_index] .== split_value
-    end
-
-    # If the data can not be split further, return a leaf
-    if allequal(left_mask) || allequal(right_mask)
-        return Leaf{L}(labels)
     end
 
     # Compute the data and labels for the child nodes
