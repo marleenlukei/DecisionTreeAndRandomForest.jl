@@ -1,6 +1,6 @@
 using DecisionTreeAndRandomForest
 using Test
-using MLJ
+using MLJ: load_iris,unpack,partition
 using DataFrames
 
 @testset "ClassificationTree" begin
