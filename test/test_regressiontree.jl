@@ -1,9 +1,9 @@
 using DecisionTreeAndRandomForest
 using Test
 using MLJ:unpack,partition
-using RDatasets  
+using RDatasets:dataset 
 using DataFrames  
-using Statistics
+using Statistics:mean
 
 @testset "RegressionTree" begin
     boston = dataset("MASS", "Boston") 

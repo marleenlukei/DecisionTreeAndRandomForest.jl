@@ -1,5 +1,4 @@
 using StatsBase: mode
-using Statistics:mean
 
 """
 Represents a Leaf in the ClassificationTree structure.
@@ -85,15 +84,18 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth) 
         return Leaf{L}(labels)                                                       
     end
+
+    # if all the labels are the same, return a leaf
+    if allequal(labels) 
+        return Leaf{L}(labels)
+    end
     
     # Get the best split from the respective split_criterion
     feature_index, split_value = find_best_split_V(data, labels)
     # Random values for testing purposes
     # feature_index = rand((1:size(data, 2)))
     # split_value = data[rand((1:size(data, 1))), feature_index]
-    if feature_index == 0
-        return Leaf{L}(labels)
-    end
+
     # Create the mask on the data
     if isa(split_value, Number)
         left_mask = data[:, feature_index] .< split_value
@@ -101,11 +103,6 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     else
         left_mask = data[:, feature_index] .!= split_value
         right_mask = data[:, feature_index] .== split_value
-    end
-
-    # If the data can not be split further, return a leaf
-    if allequal(left_mask) || allequal(right_mask)
-        return Leaf{L}(labels)
     end
 
     # Compute the data and labels for the child nodes
@@ -141,6 +138,32 @@ Returns the prediction of the ClassificationTree for a list of datapoints.
 
 `data` contains the datapoints to predict.
 """
+function predict_classification(tree::ClassificationTree, data::Matrix{T}) where {T}    
+    predictions = []
+    
+    for i in 1:size(data, 1)
+        node = tree.root
+        while !isa(node, Leaf)
+            if isa(node.split_value, Number)
+                if data[i, node.feature_index] < node.split_value
+                    node = node.left
+                else
+                    node = node.right
+                end
+            else
+                if data[i, node.feature_index] != node.split_value
+                    node = node.left
+                else
+                    node = node.right
+                end
+            end
+        end
+        # Get the label that occurs the most and add it to predictions
+        push!(predictions, mode(node.values))
+    end
+    return predictions
+end
+
 function predict(tree::ClassificationTree, data::Matrix{T}) where {T}    
     predictions = []
     
@@ -166,6 +189,7 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
     end
     return predictions
 end
+
 
 """
     print_tree(tree:ClassificationTree)
@@ -201,4 +225,3 @@ function print(leaf::Leaf, level::Int)
     end
     println("$indentation Labels: $(leaf.values)")
 end
-
