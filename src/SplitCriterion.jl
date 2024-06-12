@@ -1,8 +1,8 @@
 module SplitCriterion
 
-using StatsBase
 include("InformationGain.jl")
 include("GiniImpurity.jl")
+
 
 function find_best_split(X::AbstractMatrix{T}, y::Vector{L}, criterion::String) where {T, L}
     if criterion == "IG"
