@@ -184,8 +184,11 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
                 end
             end
         end
-        # Get the label that occurs the most and add it to predictions
-        push!(predictions,mean(node.values))
+        if isa(node.values, Number)
+            push!(predictions, mean(node.values))
+        else
+            push!(predictions, mode(node.values))
+        end
     end
     return predictions
 end
