@@ -1,30 +1,35 @@
-using StatsBase: mode
+using StatsBase: mode, sample
 
 """
-    RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, number_of_trees::Int)
-    RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int)
+    RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, number_of_trees::Int, subsample_percentage::Float64)
+    RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample_percentage::Float64)
     RandomForest(data::Matrix{T}, labels::Vector{L})
 
 Represents a RandomForest.
 
 `trees` is the vector of ClassificationTree structures.
+`subsample_percentage` is the ratio of samples that are used to train a tree.
 """
 struct RandomForest{T, L}
     trees::Vector{ClassificationTree{T, L}}
+    subsample_percentage::Float64
 
-    function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int ,number_of_trees::Int) where {T, L}
+    function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int ,number_of_trees::Int, subsample_percentage::Float64) where {T, L}
         trees = Array{ClassificationTree{T, L}}(undef, number_of_trees)
         # Create n ClassificationTrees and save them in trees
         for i in 1:number_of_trees
-            t = ClassificationTree(max_depth, min_samples_split, data, labels)
+            subsample_length = round(Int, size(data, 1) * subsample_percentage)
+            subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
+            t = ClassificationTree(max_depth, min_samples_split, data[subsample_idx, :], labels[subsample_idx])
             trees[i] = t
         end
         new{T, L}(trees)
     end
 end
 
-RandomForest(data::Matrix{T}, labels::Vector{L}) where {T, L} = RandomForest(data, labels, -1, 1, 10)
-RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees)
+RandomForest(data::Matrix{T}, labels::Vector{L}) where {T, L} = RandomForest(data, labels, -1, 1, 10, 0.8)
+RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, 0.8)
+RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample_percentage::Float64) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, subsample_percentage)
 
 """
     fit(forest::RandomForest)
