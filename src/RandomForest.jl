@@ -37,11 +37,12 @@ RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample
 Trains a RandomForest.
 
 `forest` is the RandomForest to be trained.
+`num_features` is the number of features to use when finding the best split.
 """
-function fit(forest::RandomForest)
+function fit(forest::RandomForest, num_features::Int)
     # Train every tree in forest.trees
     for tree in forest.trees
-        fit(tree, true)
+        fit(tree, num_features)
     end
 end
 

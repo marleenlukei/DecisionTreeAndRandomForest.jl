@@ -1,4 +1,4 @@
-using StatsBase: countmap
+using StatsBase: countmap, sample
 
 """
 Calculates the Gini impurity of a set of labels.
@@ -77,18 +77,16 @@ Args:
 Returns:
     A tuple containing the index of the best feature and the best split value.
 """
-function find_best_split(data::Matrix{T}, labels::Vector{L}, in_forest::Bool=false) where {T, L}  
+function find_best_split(data::Matrix{T}, labels::Vector{L}, num_features_to_use::Int=-1) where {T, L}  
     best_gini = Inf  
     best_feature_index = -1  
     best_feature_value = -1  
     num_features = size(data, 2)
-    if (in_forest)
-        best_feature_index = rand(1:num_features)
+    features_to_use = 1:num_features
+    if (num_features_to_use != -1)
+        features_to_use = sample(1:num_features, num_features_to_use, replace=true)
     end
-    for feature_index in 1:num_features  
-        if (in_forest && best_feature_index != feature_index)
-            continue
-        end
+    for feature_index in features_to_use 
         value = data[:, feature_index]  
         unique_value = unique(value)  
         for value in unique_value  

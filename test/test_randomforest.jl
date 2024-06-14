@@ -13,7 +13,7 @@ using DataFrames
 	train_data = Matrix(X[train, :])
 	test_data = Matrix(X[test, :])
     forest = RandomForest(train_data, train_labels, 5, 4, 20, 0.8)
-    fit(forest)
+    fit(forest, 3)
     predictions = predict(forest, test_data)
     accuracy = sum(predictions .== test_labels) / length(test_labels)
     println("Accuracy: $accuracy")
