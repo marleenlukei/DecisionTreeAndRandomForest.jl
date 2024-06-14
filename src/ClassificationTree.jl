@@ -78,7 +78,7 @@ Build the tree structure of the ClassificationTree
 
 If `depth` is unspecified, it is set to 0
 """
-function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, depth::Int=0) where {T, L}
+function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, depth::Int=0, in_forest::Bool=false) where {T, L}
     
     # If max_depth is reached or if the data can not be split further, return a leaf
     if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth) 
@@ -91,23 +91,23 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     end
     
     # Get the best split from the respective split_criterion
-    feature_index, split_value = find_best_split(data, labels)
-    # Random values for testing purposes
-    # feature_index = rand((1:size(data, 2)))
-    # split_value = data[rand((1:size(data, 1))), feature_index]
+    feature_index, split_value = find_best_split(data, labels, in_forest)
 
     # Create the mask on the data
     if isa(split_value, Number)
-        left_mask = data[:, feature_index] .< split_value
-        right_mask = data[:, feature_index] .>= split_value
+        mask = data[:, feature_index] .>= split_value
     else
-        left_mask = data[:, feature_index] .!= split_value
-        right_mask = data[:, feature_index] .== split_value
+        mask = data[:, feature_index] .== split_value
     end
 
     # Compute the data and labels for the child nodes
-    left_data, right_data = data[left_mask, :], data[right_mask, :]
-    left_labels, right_labels = labels[left_mask], labels[right_mask]
+    left_data, right_data = data[.!mask, :], data[mask, :]
+    left_labels, right_labels = labels[.!mask], labels[mask]
+
+    # if one subtree would be empty return a Leaf
+    if (length(left_labels) * length(right_labels) == 0)
+        return Leaf{L}(labels)
+    end
 
     # Create the node with the computed attributes
     node = Node(data, labels)
@@ -115,8 +115,8 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     node.split_value = split_value
 
     # Build the subtrees for the node
-    node.left = build_tree(left_data, left_labels, max_depth, min_samples_split, depth + 1)
-    node.right = build_tree(right_data, right_labels, max_depth, min_samples_split, depth + 1)
+    node.left = build_tree(left_data, left_labels, max_depth, min_samples_split, depth + 1, in_forest)
+    node.right = build_tree(right_data, right_labels, max_depth, min_samples_split, depth + 1, in_forest)
 
     # Return the node
     return node
@@ -127,8 +127,8 @@ end
 
 Compute the tree structure.
 """
-function fit(tree::ClassificationTree)
-    tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split)
+function fit(tree::ClassificationTree, in_forest::Bool=false)
+    tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, 0, in_forest)
 end
 
 """

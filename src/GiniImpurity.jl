@@ -55,7 +55,7 @@ Returns:
 function split_node(data::Matrix{T}, labels::Vector{L}, index, value) where {T, L} 
     x_index = data[:, index]
     # if feature is numerical
-    if eltype(x_index) <: Number
+    if eltype(identity.(x_index)) <: Number
       mask = x_index .>= value
     # if feature is categorical
     else
@@ -77,12 +77,18 @@ Args:
 Returns:
     A tuple containing the index of the best feature and the best split value.
 """
-function find_best_split(data::Matrix{T}, labels::Vector{L}) where {T, L}  
+function find_best_split(data::Matrix{T}, labels::Vector{L}, in_forest::Bool=false) where {T, L}  
     best_gini = Inf  
     best_feature_index = -1  
     best_feature_value = -1  
     num_features = size(data, 2)
+    if (in_forest)
+        best_feature_index = rand(1:num_features)
+    end
     for feature_index in 1:num_features  
+        if (in_forest && best_feature_index != feature_index)
+            continue
+        end
         value = data[:, feature_index]  
         unique_value = unique(value)  
         for value in unique_value  
