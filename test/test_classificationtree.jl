@@ -8,7 +8,7 @@ using DataFrames
     data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
     labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
     
-    # Using Information Gain criterion
+    # Using Information Gain criterion  
     split_criterion = split_gini
     tree = ClassificationTree(data, labels, split_criterion)
     fit(tree)
