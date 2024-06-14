@@ -104,3 +104,8 @@ function best_split(X::AbstractMatrix{T}, y::Vector{L}) where {T, L}
     end
     return best_feature, best_threshold
 end
+
+
+function split_ig(data, labels)
+    best_split(data, labels)
+end

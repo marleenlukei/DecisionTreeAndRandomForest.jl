@@ -1,5 +1,5 @@
 module SplitCriterion
-
+"""
 include("InformationGain.jl")
 include("GiniImpurity.jl")
 
@@ -15,5 +15,5 @@ function find_best_split(X::AbstractMatrix{T}, y::Vector{L}, criterion::String) 
 end
 
 export find_best_split
-
+"""
 end

@@ -1,25 +1,14 @@
-# src/ClassificationTree.jl
+include("InformationGain.jl")
+include("GiniImpurity.jl")
 
-include("SplitCriterion.jl")
 using StatsBase: mode
 
-"""
-Represents a Leaf in the ClassificationTree structure.
-`values` stores the labels of the data points.
-"""
+# Represents a Leaf in the ClassificationTree structure.
 mutable struct Leaf{L}
     values::Vector{L} # represents the prediction/s
 end
 
-"""
-Represents a Node in the ClassificationTree structure.
-`left` points to the left child.
-`right` points to the right child.
-`feature_index` stores the index of the selected feature.
-`split_value` stores the value on that the data is split.
-`data` contains the datapoints of the Node.
-`labels` contains the respective labels of the datapoints.
-"""
+# Represents a Node in the ClassificationTree structure.
 mutable struct Node{T, L}    
     left::Union{Node{T, L}, Leaf{L}, Missing}
     right::Union{Node{T, L}, Leaf{L}, Missing}
@@ -33,38 +22,23 @@ mutable struct Node{T, L}
     Node(data::Matrix{T}, labels::Vector{L}) where {T, L} = new{T, L}(missing, missing, -1, missing, data, labels)
 end
 
-"""
-Represents a MyClassificationTree.
-`max_depth` controls the maximum depth of the tree. If -1, the depth is not limited.
-`min_samples_split` controls when a node in the decision tree should be split.
-`root` contains the root Node of the MyClassificationTree.
-`data` contains the datapoints of the MyClassificationTree.
-`labels` contains the respective labels of the datapoints.
-"""
-mutable struct MyClassificationTree{T, L}
-    """
-    If the max_depth is -1, the MyClassificationTree is of unlimited depth.
-    """
+# Represents a ClassificationTree.
+mutable struct ClassificationTree{T, L}
     max_depth::Int
     min_samples_split::Int
-    criterion::String
+    split_criterion::Function
     root::Union{Node{T, L}, Leaf{L}, Missing}
-
     data::Matrix{T}
     labels::Vector{L}
     
-    MyClassificationTree(max_depth::Int, min_samples_split::Int, criterion::String, data::Matrix{T}, labels::Vector{L}) where {T, L} = 
-        size(data, 1) == length(labels) ? new{T, L}(max_depth, min_samples_split, criterion, missing, data, labels) : throw(ArgumentError("The number of rows in data must match the number of elements in labels"))
+    ClassificationTree(max_depth::Int, min_samples_split::Int, split_criterion::Function, data::Matrix{T}, labels::Vector{L}) where {T, L} = 
+        size(data, 1) == length(labels) ? new{T, L}(max_depth, min_samples_split, split_criterion, missing, data, labels) : throw(ArgumentError("The number of rows in data must match the number of elements in labels"))
 end
 
-MyClassificationTree(data, labels) = MyClassificationTree(-1, 1, "IG", data, labels)
+ClassificationTree(data, labels, split_criterion) = ClassificationTree(-1, 1, split_criterion, data, labels)
 
-"""
-    build_tree(data, labels, max_depth, min_samples_split, criterion, depth)
-Build the tree structure of the MyClassificationTree
-If `depth` is unspecified, it is set to 0.
-"""
-function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, criterion::String, depth::Int=0) where {T, L}
+# Build the tree structure of the ClassificationTree
+function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, split_criterion::Function, depth::Int=0) where {T, L}
     # If max_depth is reached or if the data can not be split further, return a leaf
     if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth) 
         return Leaf{L}(labels)
@@ -75,8 +49,8 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
         return Leaf{L}(labels)
     end
 
-    # Get the best split from the respective split_criterion
-    feature_index, split_value = find_best_split(data, labels, criterion)
+    # Get the best split from the provided split criterion
+    feature_index, split_value = split_criterion(data, labels)
 
     # Handle the case when no valid split is found
     if feature_index == -1
@@ -102,27 +76,20 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     node.split_value = split_value
 
     # Build the subtrees for the node
-    node.left = build_tree(left_data, left_labels, max_depth, min_samples_split, criterion, depth + 1)
-    node.right = build_tree(right_data, right_labels, max_depth, min_samples_split, criterion, depth + 1)
+    node.left = build_tree(left_data, left_labels, max_depth, min_samples_split, split_criterion, depth + 1)
+    node.right = build_tree(right_data, right_labels, max_depth, min_samples_split, split_criterion, depth + 1)
 
     # Return the node
     return node
 end
 
-"""
-    fit(tree::MyClassificationTree)
-Compute the tree structure.
-"""
-function fit(tree::MyClassificationTree)
-    tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, tree.criterion)
+# Compute the tree structure
+function fit(tree::ClassificationTree)
+    tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, tree.split_criterion)
 end
 
-"""
-    predict(tree::MyClassificationTree, data::Matrix{T})
-Returns the prediction of the MyClassificationTree for a list of datapoints.
-`data` contains the datapoints to predict.
-"""
-function predict(tree::MyClassificationTree, data::Matrix{T}) where {T}
+# Returns the prediction of the ClassificationTree for a list of datapoints.
+function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
     predictions = []
 
     for i in 1:size(data, 1)
@@ -148,11 +115,8 @@ function predict(tree::MyClassificationTree, data::Matrix{T}) where {T}
     return predictions
 end
 
-"""
-    print_tree(tree::MyClassificationTree)
-Prints the tree structure. Mainly used for debugging purposes.
-"""
-function print_tree(tree::MyClassificationTree)
+# Prints the tree structure. Mainly used for debugging purposes.
+function print_tree(tree::ClassificationTree)
     node = tree.root
     level = 1
     print(node, level)

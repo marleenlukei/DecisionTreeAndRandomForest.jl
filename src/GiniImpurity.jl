@@ -99,7 +99,9 @@ function find_best_split(data::Matrix{T}, labels::Vector{L}) where {T, L}
 end  
 
 
-
+function split_gini(data, labels)
+    find_best_split(data, labels)
+end
 
 
 
