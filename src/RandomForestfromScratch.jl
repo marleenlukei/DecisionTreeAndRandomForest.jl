@@ -1,3 +1,23 @@
+"""
+    Steps to build random forests:
+
+    1 - Create bootstrap data: same size as the original dataset - randomly select the data (rows) from the dataset (with replacement)
+    
+    
+    2- Create a decision tree with the bootstrap data using only a random subset of the features (columns)
+                                                                                            at each split in the same tree until a decision is made
+    
+    3- Repeat step 1 and 2
+    
+    
+    4- Predict function
+
+"""
+
+# RandomForest.jl
+
+include("ClassificationTree.jl")
+
 using StatsBase: mode, sample, countmap
 using Random
 using Statistics
@@ -36,8 +56,6 @@ mutable struct RandomForest{T, L}
         size(data, 1) == length(labels) ? new{T, L}(n_trees, max_depth, min_samples_split, max_features, ClassificationTree{T, L}[], data, labels) : throw(ArgumentError("The number of rows in data must match the number of elements in labels"))
 end
 
-# TODO: add a default constructor that is equal to ClassificationTree
-
 function fit_forest(rf::RandomForest)
     for i in 1:rf.n_trees
         indices = sample(1:size(rf.data, 1), size(rf.data, 1), replace=true)
@@ -49,8 +67,15 @@ function fit_forest(rf::RandomForest)
     end
 end
 
-# Just for classification
-function predict_forest(rf::RandomForest, data::Matrix{T}) where {T}    
+
+"""
+    predict_forest(rf::RandomForest, data::Matrix{T})
+
+Returns the prediction of the RandomForest for a list of datapoints.
+
+`data` contains the datapoints to predict.
+"""
+function predict_forest(rf::RandomForest, data::Matrix{T}) where {T}
     tree_predictions = [predict(tree, data) for tree in rf.trees]
     predictions = []
 
@@ -59,13 +84,9 @@ function predict_forest(rf::RandomForest, data::Matrix{T}) where {T}
         push!(predictions, mode(sample_predictions))
     end
     
-    #  TODO: add case for regression
-    
     return predictions
 end
 
-
-# Overwrite the find_best_split function to include max_features for gini imourity
 function find_best_split_rf(data::Matrix{T}, labels::Vector{L}, max_features::Int) where {T, L}
     best_gini = Inf
     best_feature_index = -1
@@ -89,9 +110,7 @@ function find_best_split_rf(data::Matrix{T}, labels::Vector{L}, max_features::In
     return (best_feature_index, best_feature_value)
 end
 
-
-# Override the build_tree function to include max_features parameter
-function build_rf_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, max_features::Int, depth::Int=0) where {T, L}
+function build_rf_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, max_features, depth::Int=0) where {T, L}
     if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth)
         return Leaf{L}(labels)
     end
@@ -123,6 +142,70 @@ function build_rf_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_s
     return node
 end
 
-function fit_rf_tree(tree::ClassificationTree, max_features)
+function fit_rf_tree(tree::ClassificationTree, max_features::Int=size(tree.data, 2))
     tree.root = build_rf_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, max_features)
+end
+
+# Create synthetic data
+X = [
+    1 0 5;
+    2 3 1;
+    5 2 3;
+    0 1 4;
+    3 5 0;
+    4 1 2;
+    1 3 3;
+    2 4 0;
+    5 1 1;
+    0 2 5
+]
+
+y = [10, 15, 20, 8, 25, 18, 17, 13, 22, 12]
+
+# Create and build a RandomForest
+rf = RandomForest(10, 5, 2, 2, X, y)
+fit_forest(rf)
+
+# Predict with the RandomForest
+predictions = predict_forest(rf, X)
+println(predictions)
+
+data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
+labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
+rf = RandomForest(10, -1, 1, 2, data, labels)
+fit_forest(rf)
+test_data = ["dog" 38.0; "human" 38.0]
+prediction = predict_forest(rf, test_data)
+println(prediction)
+
+# Helper function from GiniImpurity class - should be deleted later
+function gini_impurity(labels::Vector{L}) where {L}
+    label_counts_dict = countmap(labels)
+    total = length(labels)
+    if total == 0
+        return 0.0
+    end
+    label_probabilities = values(label_counts_dict) ./ total
+    gini = 1 - sum(label_probabilities.^2)
+    return gini
+end
+
+function weighted_gini(left_dataset::Vector{L}, right_dataset::Vector{L}) where {L}
+    number_of_left_rows = length(left_dataset)
+    number_of_right_rows = length(right_dataset)
+    total = number_of_left_rows + number_of_right_rows
+    gini_split = (number_of_left_rows / total) * gini_impurity(left_dataset) + (number_of_right_rows / total) * gini_impurity(right_dataset)
+    return gini_split
+end
+
+function split_node(data::Matrix{T}, labels::Vector{L}, index, value) where {T, L}
+    x_index = data[:, index]
+    if eltype(x_index) <: Number
+        mask = x_index .>= value
+    else
+        mask = x_index .== value
+    end
+    left = labels[.!mask]
+    right = labels[mask]
+    return left, right
 end

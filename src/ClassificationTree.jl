@@ -172,10 +172,10 @@ Prints the tree structure. Mainly used for debugging purposes.
 function print_tree(tree::ClassificationTree)
     node = tree.root
     level = 1
-    print(node, level)
+    print_t(node, level)
 end
 
-function print(node::Node, level::Int) 
+function print_t(node::Node, level::Int) 
     indentation = ""
     for i in 1:level
         indentation *= "--"
@@ -191,7 +191,7 @@ function print(node::Node, level::Int)
     print(node.right, level + 1)
 end
 
-function print(leaf::Leaf, level::Int)
+function print_t(leaf::Leaf, level::Int)
     indentation = ""
     for i in 1:level
         indentation *= "--"

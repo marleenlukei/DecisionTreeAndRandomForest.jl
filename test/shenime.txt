@@ -1,0 +1,68 @@
+"""# Test for 3 classes - numerical and non-numerical data
+    data = [ "apple" 5.5; "banana" 6.2; "apple" 5.9; "banana" 6.5;  "cherry" 4.8; "cherry" 4.9; "apple" 6.0; "banana" 6.1;  "cherry" 5.0; "apple" 5.4; "banana" 6.3; "cherry" 4.7]
+    labels = [ "red", "yellow", "red", "yellow",  "red", "red", "red", "yellow", "red", "red", "yellow", "red"]
+    tree = ClassificationTree(data, labels)
+    fit(tree)
+    test_data = ["apple" 5.6; "banana" 6.4; "cherry" 4.8]
+    predictions = predict(tree, test_data)
+    print_tree(tree)
+    # Predictions are valid classes
+    @test Set(predictions) <= Set(labels)
+    @test predictions[1] == "red"
+    @test predictions[2] == "yellow"
+    @test predictions[3] == "red"
+"""
+
+
+    """data_1 = load_iris()
+	iris_1 = DataFrame(data_1)
+	y, X = unpack(iris_1, ==(:target); rng=123)
+	train, test = partition(eachindex(y), 0.7)
+	
+	# Convert CategoricalVector to a regular Vector
+	train_labels = Vector{String}(y[train])
+	test_labels = Vector{String}(y[test])
+	
+	# Convert training data to matrix
+	train_data = Matrix(X[train, :])
+	
+	# Convert test data to matrix
+	test_data = Matrix(X[test, :])
+
+    tree = ClassificationTree(-1, 1, train_data, train_labels)
+    fit(tree)
+    predictions = predict(tree, test_data)
+    print_tree(tree)
+
+    # Debugging: Print mismatched predictions
+    for i in eachindex(test_labels)
+        if predictions[i] != test_labels[i]
+            println("Mismatch at index $i: predicted $(predictions[i]), expected $(test_labels[i])")
+        end
+    end"""
+    
+    # println(predictions == test_labels)
+   #  @test predictions == test_labels
+
+
+   """iris_1 = DataFrame(data_1)
+y, X = unpack(iris_1, ==(:target); rng=123)
+train, test = partition(eachindex(y), 0.7)
+
+# Convert training data to matrix and vector
+train_data = Matrix(X[train, :])
+train_labels = y[train]
+
+# Convert test data to matrix and vector
+test_data = Matrix(X[test, :])
+test_labels = y[test]
+
+tree = ClassificationTree(5, 2, train_data, train_labels)
+fit(tree)
+predictions = predict(tree, test_data)
+print_tree(tree)
+for i in eachindex(test_labels)
+    predictions[i] == test_labels[i]
+end
+
+@test predictions == test_labels"""
