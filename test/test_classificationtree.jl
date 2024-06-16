@@ -9,13 +9,13 @@ using DataFrames
     labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
     
     # Using Information Gain criterion  
-    split_criterion = split_gini
-    tree = ClassificationTree(data, labels, split_criterion)
+
+    tree = ClassificationTree(data, labels, split_gini)
     fit(tree)
     
     test_data = ["dog" 38.0; "human" 38.0]
     prediction = predict(tree, test_data)
-    print_tree(tree)
+    # print_tree(tree)
     @test prediction[1] == "healthy"
     @test prediction[2] == "sick"
 
@@ -29,10 +29,10 @@ using DataFrames
     train_data = Matrix(X[train, :])
     test_data = Matrix(X[test, :])
 
-    tree = ClassificationTree(train_data, train_labels, split_criterion)
+    tree = ClassificationTree(train_data, train_labels, split_gini)
     fit(tree)
     predictions = predict(tree, test_data)
-    print_tree(tree)
+    # print_tree(tree)
     
     accuracy = sum(predictions .== test_labels) / length(test_labels)
     @test Set(predictions) <= Set(test_labels)

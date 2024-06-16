@@ -100,7 +100,7 @@ end
 
 
 function split_gini(data, labels)
-    find_best_split(data, labels)
+    return find_best_split(data, labels)
 end
 
 
