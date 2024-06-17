@@ -8,5 +8,5 @@ include("GiniImpurity.jl")
 include("InformationGain.jl")
 include("VarianceReduction.jl")
 
-export ClassificationTree, fit, predict, print_tree, find_best_split,find_best_split_V
+export ClassificationTree, fit, predict, print_tree, split_gini, split_ig
 end
