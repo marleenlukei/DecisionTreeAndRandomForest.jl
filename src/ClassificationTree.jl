@@ -1,4 +1,5 @@
 using StatsBase: mode
+using Statistics:mean
 
 """
 Represents a Leaf in the ClassificationTree structure.
@@ -95,7 +96,9 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     # Random values for testing purposes
     # feature_index = rand((1:size(data, 2)))
     # split_value = data[rand((1:size(data, 1))), feature_index]
-
+    if feature_index == 0
+        return Leaf{L}(labels)
+    end
     # Create the mask on the data
     if isa(split_value, Number)
         left_mask = data[:, feature_index] .< split_value
@@ -159,7 +162,7 @@ function predict_classification(tree::ClassificationTree, data::Matrix{T}) where
             end
         end
         # Get the label that occurs the most and add it to predictions
-        push!(predictions, mode(node.values))
+        push!(predictions,mean(node.values))
     end
     return predictions
 end
@@ -228,3 +231,4 @@ function print(leaf::Leaf, level::Int)
     end
     println("$indentation Labels: $(leaf.values)")
 end
+
