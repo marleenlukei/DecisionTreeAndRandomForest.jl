@@ -10,7 +10,21 @@ mutable struct Leaf{L}
     values::Vector{L} # represents the prediction/s
 end
 
-# Represents a Node in the ClassificationTree structure.
+"""
+Represents a Node in the ClassificationTree structure.
+
+`left` points to the left child.
+
+`right` points to the right child.
+
+`feature_index` stores the index of the selected feature.
+
+`split_value` stores the value on that the data is split.
+
+`data` contains the datapoints of the Node.
+
+`labels` contains the respective labels of the datapoints.
+"""
 mutable struct Node{T, L}    
     left::Union{Node{T, L}, Leaf{L}, Missing}
     right::Union{Node{T, L}, Leaf{L}, Missing}
@@ -24,8 +38,23 @@ mutable struct Node{T, L}
     Node(data::Matrix{T}, labels::Vector{L}) where {T, L} = new{T, L}(missing, missing, -1, missing, data, labels)
 end
 
-# Represents a ClassificationTree.
+"""
+Represents a ClassificationTree.
+
+`max_depth` controls the maximum depth of the tree. If -1, the depth is not limited.
+
+`min_samples_split` controls when a node in the decision tree should be split.
+
+`root` contains the root Node of the ClassificationTree.
+
+`data` contains the datapoints of the ClassificationTree.
+
+`labels` contains the respective labels of the datapoints.
+"""
 mutable struct ClassificationTree{T, L}
+    """
+    If the max_depth is -1, the DecisionTree is of unlimited depth.
+    """
     max_depth::Int
     min_samples_split::Int
     split_criterion::Function
@@ -39,26 +68,33 @@ end
 
 ClassificationTree(data, labels, split_criterion) = ClassificationTree(-1, 1, split_criterion, data, labels)
 
-# Build the tree structure of the ClassificationTree
-function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, split_criterion::Function, depth::Int=0) where {T, L}
+
+"""
+    build_tree(data, labels, max_depth, min_samples_split, depth)
+
+Build the tree structure of the ClassificationTree
+
+If `depth` is unspecified, it is set to 0
+"""
+function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, split_criterion::Function, depth::Int=0) where {T, L}    
     # If max_depth is reached or if the data can not be split further, return a leaf
     if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth) 
-        return Leaf{L}(labels)
+        return Leaf{L}(labels)                                                       
     end
 
     # if all the labels are the same, return a leaf
-    if allequal(labels)
+    if allequal(labels) 
         return Leaf{L}(labels)
     end
-
-    # Get the best split from the provided split criterion
+    
+    # Get the best split from the respective split_criterion
     feature_index, split_value = split_criterion(data, labels)
-
-    # Handle the case when no valid split is found
+    # Random values for testing purposes
+    # feature_index = rand((1:size(data, 2)))
+    # split_value = data[rand((1:size(data, 1))), feature_index]
     if feature_index == 0
         return Leaf{L}(labels)
     end
-
     # Create the mask on the data
     if isa(split_value, Number)
         left_mask = data[:, feature_index] .< split_value
@@ -85,7 +121,11 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     return node
 end
 
-# Compute the tree structure
+"""
+    fit(tree::ClassificationTree)
+
+Compute the tree structure.
+"""
 function fit(tree::ClassificationTree)
     tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, tree.split_criterion)
 end
@@ -125,7 +165,7 @@ end
 
 function predict(tree::ClassificationTree, data::Matrix{T}) where {T}    
     predictions = []
-
+    
     for i in 1:size(data, 1)
         node = tree.root
         while !isa(node, Leaf)
@@ -153,15 +193,18 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
 end
 
 
+"""
+    print_tree(tree:ClassificationTree)
 
-# Prints the tree structure. Mainly used for debugging purposes.
+Prints the tree structure. Mainly used for debugging purposes.
+"""
 function print_tree(tree::ClassificationTree)
     node = tree.root
     level = 1
     print(node, level)
 end
 
-function print(node::Node, level::Int)
+function print(node::Node, level::Int) 
     indentation = ""
     for i in 1:level
         indentation *= "--"
@@ -184,4 +227,3 @@ function print(leaf::Leaf, level::Int)
     end
     println("$indentation Labels: $(leaf.values)")
 end
-

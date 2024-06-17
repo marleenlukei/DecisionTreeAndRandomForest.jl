@@ -33,7 +33,7 @@ Args:
 Returns:
     A tuple containing the left and right sets of labels.
   """
-function split_node_V(data::Matrix{T}, labels::Vector{L}, index, value) where {T, L} 
+function split_node_vr(data::Matrix{T}, labels::Vector{L}, index, value) where {T, L} 
     x_index = data[:, index]
     # if feature is numerical
     if eltype(x_index) <: Number
@@ -47,23 +47,23 @@ function split_node_V(data::Matrix{T}, labels::Vector{L}, index, value) where {T
     return left, right
 end
 
-function find_best_split_V(data::Matrix{T}, labels::Vector{L}) where {T, L}  
+function find_best_split_vr(data::Matrix{T}, labels::Vector{L}) where {T, L}  
     best_feature_index = 0  
     best_threshold = 0  
-    best_variance = Inf  
+    best_variance = -Inf  
     num_features = size(data, 2) 
       
     for feature in 1:num_features  
         thresholds = unique(data[:, feature])  
         for threshold in thresholds  
-            left_labels,right_labels = split_node_V(data, labels, feature, threshold) 
+            left_labels,right_labels = split_node_vr(data, labels, feature, threshold) 
             if length(left_labels) == 0 || length(right_labels) == 0  
                 continue  
             end  
               
-            current_variance = variance_reduction(left_labels, right_labels)  
+            current_variance = variance(labels)-variance_reduction(left_labels, right_labels)  
               
-            if current_variance < best_variance  
+            if current_variance > best_variance  
                 best_variance = current_variance  
                 best_feature_index = feature  
                 best_threshold = threshold  
@@ -74,3 +74,6 @@ function find_best_split_V(data::Matrix{T}, labels::Vector{L}) where {T, L}
     return best_feature_index, best_threshold
 end  
 
+function split_variance(data, labels)
+    return find_best_split_vr(data, labels)
+end

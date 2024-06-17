@@ -107,5 +107,5 @@ end
 
 
 function split_ig(data, labels)
-    best_split(data, labels)
+    return best_split(data, labels)
 end
