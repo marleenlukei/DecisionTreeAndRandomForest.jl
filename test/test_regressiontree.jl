@@ -6,6 +6,27 @@ using DataFrames
 using Statistics:mean
 
 @testset "RegressionTree" begin
+    data = DataFrame(  
+        FloorArea = [14, 20, 25, 33, 40, 55, 80],  
+        Rooms = [1, 1, 1, 2, 2, 3, 4],  
+        YearBuilt = [1990, 1980, 2000, 2005, 2010, 1999, 2020],  
+        Amenities = ["Standard", "Modern", "Luxury", "Basic", "Modern", "Standard", "Luxury"],  
+        Rent = [500, 800, 1500, 1100, 2200, 2000, 3000]  
+    )  
+    X = Matrix(data[:, 1:2])  
+    y = data[:, :Rent]  
+    
+    tree = ClassificationTree(3,3, split_variance,X, y)
+    fit(tree)
+    
+    test_data = [12 1 2002 "Standard";40 2 2020 "Luxury"]
+    prediction = predict(tree, test_data)
+    print_tree(tree)
+    print(prediction)
+    @test 600 <= prediction[1] <= 700
+    @test 2000 <= prediction[2] <= 2500
+
+
     boston = dataset("MASS", "Boston") 
     data = DataFrame(boston)
     X = data[:, 1:end-1]

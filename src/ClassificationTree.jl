@@ -137,32 +137,6 @@ Returns the prediction of the ClassificationTree for a list of datapoints.
 
 `data` contains the datapoints to predict.
 """
-function predict_classification(tree::ClassificationTree, data::Matrix{T}) where {T}    
-    predictions = []
-    
-    for i in 1:size(data, 1)
-        node = tree.root
-        while !isa(node, Leaf)
-            if isa(node.split_value, Number)
-                if data[i, node.feature_index] < node.split_value
-                    node = node.left
-                else
-                    node = node.right
-                end
-            else
-                if data[i, node.feature_index] != node.split_value
-                    node = node.left
-                else
-                    node = node.right
-                end
-            end
-        end
-        # Get the label that occurs the most and add it to predictions
-        push!(predictions,mean(node.values))
-    end
-    return predictions
-end
-
 function predict(tree::ClassificationTree, data::Matrix{T}) where {T}    
     predictions = []
     
@@ -183,10 +157,10 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
                 end
             end
         end
-        if isa(node.values, Number)
-            push!(predictions, mean(node.values))
-        else
+        if all(isa.(node.values, String))
             push!(predictions, mode(node.values))
+        else
+            push!(predictions, mean(node.values))
         end
     end
     return predictions
