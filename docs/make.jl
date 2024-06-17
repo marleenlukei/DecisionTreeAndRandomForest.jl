@@ -15,6 +15,8 @@ makedocs(
     pages=[
         "Home" => "index.md",
         "Getting Started" => "getting_started.md",
+        "Splitting Criterion" => "splitting_criterion.md",
+        "Example Tutorial: Classification Tree" => "classification_example.md",
     ],
 )
 
