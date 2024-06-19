@@ -8,7 +8,7 @@ using StatsBase: mode, sample
 Represents a RandomForest.
 
 `trees` is the vector of ClassificationTree structures.
-`subsample_percentage` is the ratio of samples that are used to train a tree.
+`num_features` is the number of features to use when finding the best split. If -1, all the features are used.
 """
 struct RandomForest{T, L}
     trees::Vector{ClassificationTree{T, L}}
@@ -27,8 +27,8 @@ struct RandomForest{T, L}
     end
 end
 
-RandomForest(data::Matrix{T}, labels::Vector{L}) where {T, L} = RandomForest(data, labels, -1, 1, 10, 0.8, size(data, 1))
-RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, 0.8, size(data, 1))
+RandomForest(data::Matrix{T}, labels::Vector{L}) where {T, L} = RandomForest(data, labels, -1, 1, 10, 0.8, -1)
+RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, 0.8, -1)
 RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, subsample_percentage, num_features)
 
 """
