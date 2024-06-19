@@ -5,21 +5,18 @@ using Statistics
 include("ClassificationTree.jl")
 
 """
-Represents a RandomForest for classification.
+    struct RandomForest{T, L}
 
-`n_trees` is the number of trees in the forest.
+Represents a RandomForest for classification and regression.
 
-`max_depth` controls the maximum depth of each tree. If -1, the depth is not limited.
-
-`min_samples_split` controls when a node in the decision tree should be split.
-
-`max_features` controls the number of features to consider when looking for the best split.
-
-`trees` is a vector containing the individual ClassificationTree instances.
-
-`data` contains the datapoints of the RandomForest.
-
-`labels` contains the respective labels of the datapoints.
+# Fields
+- `n_trees::Int`: The number of trees in the forest.
+- `max_depth::Int`: The maximum depth of each tree. If -1, the depth is not limited.
+- `min_samples_split::Int`: Controls when a node in the decision tree should be split.
+- `max_features::Int`: The number of features to consider when looking for the best split.
+- `trees::Vector{ClassificationTree{T, L}}`: A vector containing the individual ClassificationTree instances.
+- `data::Matrix{T}`: Contains the datapoints of the RandomForest.
+- `labels::Vector{L}`: Contains the respective labels of the datapoints.
 """
 mutable struct RandomForest{T, L}
     n_trees::Int  # the number of trees in the forest
@@ -36,8 +33,14 @@ mutable struct RandomForest{T, L}
         size(data, 1) == length(labels) ? new{T, L}(n_trees, max_depth, min_samples_split, max_features, ClassificationTree{T, L}[], data, labels) : throw(ArgumentError("The number of rows in data must match the number of elements in labels"))
 end
 
-# TODO: add a default constructor that is equal to ClassificationTree
+"""
+    fit_forest(rf::RandomForest)
 
+Fits the RandomForest instance by training individual trees on bootstrap samples of the data.
+
+# Arguments
+- `rf::RandomForest`: The RandomForest instance to be fitted.
+"""
 function fit_forest(rf::RandomForest)
     for i in 1:rf.n_trees
         indices = sample(1:size(rf.data, 1), size(rf.data, 1), replace=true)
@@ -49,18 +52,31 @@ function fit_forest(rf::RandomForest)
     end
 end
 
-# Just for classification
-function predict_forest(rf::RandomForest, data::Matrix{T}) where {T}    
+"""
+    predict_forest(rf::RandomForest, data::Matrix{T}; regression=false) -> Vector
+
+Predicts the output for the given data using the RandomForest instance.
+
+# Arguments
+- `rf::RandomForest`: The RandomForest instance used for prediction.
+- `data::Matrix{T}`: The data matrix for which predictions are to be made.
+- `regression::Bool`: A flag indicating whether to perform regression. Defaults to `false`.
+
+# Returns
+- A vector containing the predictions for each sample in the data.
+"""
+function predict_forest(rf::RandomForest, data::Matrix{T}, regression=false) where {T}    
     tree_predictions = [predict(tree, data) for tree in rf.trees]
     predictions = []
 
     for i in 1:size(data, 1)
         sample_predictions = [tree_predictions[j][i] for j in 1:rf.n_trees]
-        push!(predictions, mode(sample_predictions))
+        if regression
+            push!(predictions, mean(sample_predictions))
+        else
+            push!(predictions, mode(sample_predictions))
+        end
     end
-    
-    #  TODO: add case for regression
-    
     return predictions
 end
 
