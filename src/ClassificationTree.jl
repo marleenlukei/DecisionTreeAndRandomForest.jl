@@ -157,10 +157,10 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
                 end
             end
         end
-        if all(isa.(node.values, String))
-            push!(predictions, mode(node.values))
-        else
+        if all(isa.(node.values, Number))
             push!(predictions, mean(node.values))
+        else
+            push!(predictions, mode(node.values))
         end
     end
     return predictions

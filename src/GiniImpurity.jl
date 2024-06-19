@@ -55,7 +55,7 @@ Returns:
 function split_node(data::Matrix{T}, labels::Vector{L}, index, value) where {T, L} 
     x_index = data[:, index]
     # if feature is numerical
-    if eltype(x_index) <: Number
+    if eltype(identity.(x_index)) <: Number
       mask = x_index .>= value
     # if feature is categorical
     else
