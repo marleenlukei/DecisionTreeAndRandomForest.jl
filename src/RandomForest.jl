@@ -12,9 +12,9 @@ Represents a RandomForest.
 """
 struct RandomForest{T, L}
     trees::Vector{ClassificationTree{T, L}}
-    subsample_percentage::Float64
+    num_features::Int
 
-    function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int ,number_of_trees::Int, subsample_percentage::Float64) where {T, L}
+    function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int ,number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L}
         trees = Array{ClassificationTree{T, L}}(undef, number_of_trees)
         # Create n ClassificationTrees and save them in trees
         for i in 1:number_of_trees
@@ -23,13 +23,13 @@ struct RandomForest{T, L}
             t = ClassificationTree(max_depth, min_samples_split, data[subsample_idx, :], labels[subsample_idx])
             trees[i] = t
         end
-        new{T, L}(trees)
+        new{T, L}(trees, num_features)
     end
 end
 
-RandomForest(data::Matrix{T}, labels::Vector{L}) where {T, L} = RandomForest(data, labels, -1, 1, 10, 0.8)
-RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, 0.8)
-RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample_percentage::Float64) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, subsample_percentage)
+RandomForest(data::Matrix{T}, labels::Vector{L}) where {T, L} = RandomForest(data, labels, -1, 1, 10, 0.8, size(data, 1))
+RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, 0.8, size(data, 1))
+RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, subsample_percentage, num_features)
 
 """
     fit(forest::RandomForest)
@@ -39,10 +39,10 @@ Trains a RandomForest.
 `forest` is the RandomForest to be trained.
 `num_features` is the number of features to use when finding the best split.
 """
-function fit(forest::RandomForest, num_features::Int)
+function fit(forest::RandomForest)
     # Train every tree in forest.trees
     for tree in forest.trees
-        fit(tree, num_features)
+        fit(tree, forest.num_features)
     end
 end
 
