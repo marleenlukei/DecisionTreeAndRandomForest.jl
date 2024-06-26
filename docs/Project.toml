@@ -1,5 +1,6 @@
 [deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DecisionTreeAndRandomForest = "2e1a1f2f-ab8e-43f0-b75f-c7407e5d21e0"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 MLJ = "add582a8-e3ab-11e8-2d5e-e98b27df1bc7"
+RDatasets = "ce6b1742-4840-55fa-b093-852dadbb1d8b"

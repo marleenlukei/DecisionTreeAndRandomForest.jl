@@ -1,5 +1,3 @@
-using Random
-using Statistics
 using StatsBase: countmap
 
 """
@@ -83,7 +81,7 @@ Returns the best feature and threshold for the split.
 """
 function best_split(X::AbstractMatrix{T}, y::Vector{L}) where {T, L}
     best_gain = -Inf
-    best_feature = -1
+    best_feature = 0
     best_threshold = 0.0
     n_features = size(X, 2)
     
@@ -103,4 +101,9 @@ function best_split(X::AbstractMatrix{T}, y::Vector{L}) where {T, L}
         end
     end
     return best_feature, best_threshold
+end
+
+
+function split_ig(data, labels)
+    return best_split(data, labels)
 end

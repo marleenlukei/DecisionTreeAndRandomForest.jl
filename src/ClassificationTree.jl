@@ -1,4 +1,4 @@
-using StatsBase: mode
+using StatsBase: mode, mean
 
 """
 Represents a Leaf in the ClassificationTree structure.
@@ -56,19 +56,16 @@ mutable struct ClassificationTree{T, L}
     """
     max_depth::Int
     min_samples_split::Int
-
+    split_criterion::Function
     root::Union{Node{T, L}, Leaf{L}, Missing}
-
     data::Matrix{T}
     labels::Vector{L}
     
-    ClassificationTree(max_depth::Int, min_samples_split::Int, data::Matrix{T}, labels::Vector{L}) where {T, L} = 
-        size(data, 1) == length(labels) ? new{T, L}(max_depth, min_samples_split, missing, data, labels) : throw(ArgumentError("The number of rows in data must match the number of elements in labels"))
-
-
+    ClassificationTree(max_depth::Int, min_samples_split::Int, split_criterion::Function, data::Matrix{T}, labels::Vector{L}) where {T, L} = 
+        size(data, 1) == length(labels) ? new{T, L}(max_depth, min_samples_split, split_criterion, missing, data, labels) : throw(ArgumentError("The number of rows in data must match the number of elements in labels"))
 end
 
-ClassificationTree(data, labels) = ClassificationTree(-1, 1, data, labels)
+ClassificationTree(data, labels, split_criterion) = ClassificationTree(-1, 1, split_criterion, data, labels)
 
 
 """
@@ -78,8 +75,7 @@ Build the tree structure of the ClassificationTree
 
 If `depth` is unspecified, it is set to 0
 """
-function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, depth::Int=0) where {T, L}
-    
+function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, split_criterion::Function, depth::Int=0) where {T, L}    
     # If max_depth is reached or if the data can not be split further, return a leaf
     if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth) 
         return Leaf{L}(labels)                                                       
@@ -91,23 +87,27 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     end
     
     # Get the best split from the respective split_criterion
-    feature_index, split_value = find_best_split(data, labels)
+    feature_index, split_value = split_criterion(data, labels)
     # Random values for testing purposes
     # feature_index = rand((1:size(data, 2)))
     # split_value = data[rand((1:size(data, 1))), feature_index]
-
+    if feature_index == 0
+        return Leaf{L}(labels)
+    end
     # Create the mask on the data
     if isa(split_value, Number)
-        left_mask = data[:, feature_index] .< split_value
-        right_mask = data[:, feature_index] .>= split_value
+        mask = data[:, feature_index] .>= split_value
     else
-        left_mask = data[:, feature_index] .!= split_value
-        right_mask = data[:, feature_index] .== split_value
+        mask = data[:, feature_index] .== split_value
     end
-
     # Compute the data and labels for the child nodes
-    left_data, right_data = data[left_mask, :], data[right_mask, :]
-    left_labels, right_labels = labels[left_mask], labels[right_mask]
+    left_data, right_data = data[.!mask, :], data[mask, :]
+    left_labels, right_labels = labels[.!mask], labels[mask]
+
+    # if one subtree would be empty return a Leaf
+    if (length(left_labels) * length(right_labels) == 0)
+        return Leaf{L}(labels)
+    end
 
     # Create the node with the computed attributes
     node = Node(data, labels)
@@ -115,8 +115,8 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     node.split_value = split_value
 
     # Build the subtrees for the node
-    node.left = build_tree(left_data, left_labels, max_depth, min_samples_split, depth + 1)
-    node.right = build_tree(right_data, right_labels, max_depth, min_samples_split, depth + 1)
+    node.left = build_tree(left_data, left_labels, max_depth, min_samples_split, split_criterion, depth + 1)
+    node.right = build_tree(right_data, right_labels, max_depth, min_samples_split, split_criterion, depth + 1)
 
     # Return the node
     return node
@@ -128,7 +128,7 @@ end
 Compute the tree structure.
 """
 function fit(tree::ClassificationTree)
-    tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split)
+    tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, tree.split_criterion)
 end
 
 """
@@ -158,11 +158,15 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
                 end
             end
         end
-        # Get the label that occurs the most and add it to predictions
-        push!(predictions, mode(node.values))
+        if all(isa.(node.values, Number))
+            push!(predictions, mean(node.values))
+        else
+            push!(predictions, mode(node.values))
+        end
     end
     return predictions
 end
+
 
 """
     print_tree(tree:ClassificationTree)

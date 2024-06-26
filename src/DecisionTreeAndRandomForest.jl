@@ -6,6 +6,7 @@ module DecisionTreeAndRandomForest
 include("ClassificationTree.jl")
 include("GiniImpurity.jl")
 include("InformationGain.jl")
+include("VarianceReduction.jl")
 
-export ClassificationTree, fit, predict, print_tree, find_best_split
+export ClassificationTree, fit, predict, print_tree, split_gini, split_ig, split_variance
 end
