@@ -54,7 +54,7 @@ function find_best_split_vr(data::Matrix{T}, labels::Vector{L}, num_features_to_
     num_features = size(data, 2) 
     features_to_use = 1:num_features
     if (num_features_to_use != -1)
-        features_to_use = sample(1:num_features, num_features_to_use, replace=true)
+        features_to_use = sample(1:num_features, num_features_to_use, replace=false)
     end
 
     for feature in features_to_use 

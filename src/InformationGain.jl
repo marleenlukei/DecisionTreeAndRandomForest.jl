@@ -86,7 +86,7 @@ function best_split(X::AbstractMatrix{T}, y::Vector{L}, num_features_to_use::Int
     n_features = size(X, 2)
     features_to_use = 1:n_features
     if (num_features_to_use != -1)
-        features_to_use = sample(1:n_features, num_features_to_use, replace=true)
+        features_to_use = sample(1:n_features, num_features_to_use, replace=false)
     end
     for feature in features_to_use
         thresholds = unique(X[:, feature])
