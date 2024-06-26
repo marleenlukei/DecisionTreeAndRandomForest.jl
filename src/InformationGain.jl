@@ -1,5 +1,3 @@
-using Random
-using Statistics
 using StatsBase: countmap
 
 """

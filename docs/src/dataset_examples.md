@@ -81,7 +81,7 @@ test_data = Matrix(X[test_indices, :])
 nothing # hide
 ```
 
-Next, we create the classification tree and fit it to the training data:
+Next, we create the Regression Tree and fit it to the training data:
 
 ```@example 3
 tree = ClassificationTree(train_data, train_labels, split_variance)

@@ -3,7 +3,8 @@ using Test
 using MLJ:unpack,partition
 using RDatasets:dataset 
 using DataFrames  
-using Statistics:mean
+using StatsBase: mean
+
 
 @testset "RegressionTree" begin
     data = DataFrame(  

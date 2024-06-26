@@ -1,5 +1,4 @@
-using StatsBase: mode
-using Statistics:mean
+using StatsBase: mode, mean
 
 """
 Represents a Leaf in the ClassificationTree structure.
@@ -97,16 +96,18 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     end
     # Create the mask on the data
     if isa(split_value, Number)
-        left_mask = data[:, feature_index] .< split_value
-        right_mask = data[:, feature_index] .>= split_value
+        mask = data[:, feature_index] .>= split_value
     else
-        left_mask = data[:, feature_index] .!= split_value
-        right_mask = data[:, feature_index] .== split_value
+        mask = data[:, feature_index] .== split_value
     end
-
     # Compute the data and labels for the child nodes
-    left_data, right_data = data[left_mask, :], data[right_mask, :]
-    left_labels, right_labels = labels[left_mask], labels[right_mask]
+    left_data, right_data = data[.!mask, :], data[mask, :]
+    left_labels, right_labels = labels[.!mask], labels[mask]
+
+    # if one subtree would be empty return a Leaf
+    if (length(left_labels) * length(right_labels) == 0)
+        return Leaf{L}(labels)
+    end
 
     # Create the node with the computed attributes
     node = Node(data, labels)
