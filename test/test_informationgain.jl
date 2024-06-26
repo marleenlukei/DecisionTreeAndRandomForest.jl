@@ -1,10 +1,5 @@
-using Random
-using Statistics
 using StatsBase: countmap
 using Test
-
-# Import the functions from your Information Gain implementation..
-include("../src/InformationGain.jl")
 
 # Test cases for entropy
 @testset "Entropy" begin

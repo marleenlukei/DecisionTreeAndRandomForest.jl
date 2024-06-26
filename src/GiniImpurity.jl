@@ -103,7 +103,9 @@ function find_best_split(data::Matrix{T}, labels::Vector{L}, num_features_to_use
 end  
 
 
-
+function split_gini(data, labels, num_features)
+    return find_best_split(data, labels, num_features)
+end
 
 
 

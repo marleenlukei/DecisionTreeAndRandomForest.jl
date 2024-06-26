@@ -14,22 +14,22 @@ struct RandomForest{T, L}
     trees::Vector{ClassificationTree{T, L}}
     num_features::Int
 
-    function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int ,number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L}
+    function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int , split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L}
         trees = Array{ClassificationTree{T, L}}(undef, number_of_trees)
         # Create n ClassificationTrees and save them in trees
         for i in 1:number_of_trees
             subsample_length = round(Int, size(data, 1) * subsample_percentage)
             subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
-            t = ClassificationTree(max_depth, min_samples_split, data[subsample_idx, :], labels[subsample_idx])
+            t = ClassificationTree(max_depth, min_samples_split, split_criterion, data[subsample_idx, :], labels[subsample_idx])
             trees[i] = t
         end
         new{T, L}(trees, num_features)
     end
 end
 
-RandomForest(data::Matrix{T}, labels::Vector{L}) where {T, L} = RandomForest(data, labels, -1, 1, 10, 0.8, -1)
-RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, 0.8, -1)
-RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L} = RandomForest(data, labels, -1, 1, number_of_trees, subsample_percentage, num_features)
+RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, 10, 0.8, -1)
+RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, number_of_trees, 0.8, -1)
+RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, number_of_trees, subsample_percentage, num_features)
 
 """
     fit(forest::RandomForest)
