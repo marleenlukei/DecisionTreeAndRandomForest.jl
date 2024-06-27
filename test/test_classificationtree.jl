@@ -35,6 +35,7 @@ using DataFrames
     # print_tree(tree)
     
     accuracy = sum(predictions .== test_labels) / length(test_labels)
+    println("Accuracy: $accuracy")
     @test Set(predictions) <= Set(test_labels)
     @test accuracy >= 0.90
 end

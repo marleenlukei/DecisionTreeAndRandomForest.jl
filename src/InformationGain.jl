@@ -79,13 +79,16 @@ Returns the best feature and threshold for the split.
 - `best_feature`: The index of the best feature to split on.
 - `best_threshold`: The threshold value for the best split.
 """
-function best_split(X::AbstractMatrix{T}, y::Vector{L}) where {T, L}
+function best_split(X::AbstractMatrix{T}, y::Vector{L}, num_features_to_use::Int=-1) where {T, L}
     best_gain = -Inf
     best_feature = 0
     best_threshold = 0.0
     n_features = size(X, 2)
-    
-    for feature in 1:n_features
+    features_to_use = 1:n_features
+    if (num_features_to_use != -1)
+        features_to_use = sample(1:n_features, num_features_to_use, replace=false)
+    end
+    for feature in features_to_use
         thresholds = unique(X[:, feature])
         for threshold in thresholds
             X_left, y_left, X_right, y_right = split_dataset(X, y, feature, threshold)
@@ -104,6 +107,6 @@ function best_split(X::AbstractMatrix{T}, y::Vector{L}) where {T, L}
 end
 
 
-function split_ig(data, labels)
-    return best_split(data, labels)
+function split_ig(data, labels, num_features)
+    return best_split(data, labels, num_features)
 end

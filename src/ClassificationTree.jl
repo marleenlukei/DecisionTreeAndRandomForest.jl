@@ -75,7 +75,7 @@ Build the tree structure of the ClassificationTree
 
 If `depth` is unspecified, it is set to 0
 """
-function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, split_criterion::Function, depth::Int=0) where {T, L}    
+function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, split_criterion::Function, depth::Int=0, num_features::Int=-1) where {T, L}    
     # If max_depth is reached or if the data can not be split further, return a leaf
     if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth) 
         return Leaf{L}(labels)                                                       
@@ -87,7 +87,7 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     end
     
     # Get the best split from the respective split_criterion
-    feature_index, split_value = split_criterion(data, labels)
+    feature_index, split_value = split_criterion(data, labels, num_features)
     # Random values for testing purposes
     # feature_index = rand((1:size(data, 2)))
     # split_value = data[rand((1:size(data, 1))), feature_index]
@@ -115,8 +115,8 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     node.split_value = split_value
 
     # Build the subtrees for the node
-    node.left = build_tree(left_data, left_labels, max_depth, min_samples_split, split_criterion, depth + 1)
-    node.right = build_tree(right_data, right_labels, max_depth, min_samples_split, split_criterion, depth + 1)
+    node.left = build_tree(left_data, left_labels, max_depth, min_samples_split, split_criterion, depth + 1, num_features)
+    node.right = build_tree(right_data, right_labels, max_depth, min_samples_split, split_criterion, depth + 1, num_features)
 
     # Return the node
     return node
@@ -127,8 +127,8 @@ end
 
 Compute the tree structure.
 """
-function fit(tree::ClassificationTree)
-    tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, tree.split_criterion)
+function fit(tree::ClassificationTree, num_features::Int=-1)
+    tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, tree.split_criterion, 0, num_features)
 end
 
 """
