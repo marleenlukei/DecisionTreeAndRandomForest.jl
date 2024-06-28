@@ -1,8 +1,3 @@
-using DecisionTreeAndRandomForest
-using Test
-using MLJ: load_iris, unpack, partition
-using DataFrames
-
 @testset "ClassificationTree" begin
     # Test 1: Categorical and numerical data with labels
     data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
@@ -15,7 +10,7 @@ using DataFrames
     
     test_data = ["dog" 38.0; "human" 38.0]
     prediction = predict(tree, test_data)
-    # print_tree(tree)
+    print(tree)
     @test prediction[1] == "healthy"
     @test prediction[2] == "sick"
 
@@ -32,7 +27,7 @@ using DataFrames
     tree = DecisionTree(train_data, train_labels, split_gini)
     fit(tree)
     predictions = predict(tree, test_data)
-    # print_tree(tree)
+    print(tree)
     
     accuracy = sum(predictions .== test_labels) / length(test_labels)
     println("Accuracy: $accuracy")

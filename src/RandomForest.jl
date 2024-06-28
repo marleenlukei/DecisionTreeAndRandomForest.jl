@@ -1,5 +1,3 @@
-using StatsBase: mode, sample
-
 """
     RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, number_of_trees::Int, subsample_percentage::Float64)
     RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample_percentage::Float64)
@@ -67,16 +65,9 @@ function predict(forest::RandomForest, data::Matrix{T}) where {T}
     return [mode(labels[:, i]) for i in 1:size(labels, 2)]
 end
 
-"""
-    print_forest(forest::RandomForest)
-
-Prints the structure of the RandomForest.
-
-`forest` is the RandomForest to be printed.
-"""
-function print_forest(forest::RandomForest)
+function Base.show(io::IO, forest::RandomForest)
     for (index, tree) in enumerate(forest.trees)
-        println("Tree $index")
-        print_tree(tree)
+        println(io, "Tree $index")
+        print(tree)
     end
 end

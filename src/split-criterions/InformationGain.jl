@@ -1,5 +1,3 @@
-using StatsBase: countmap
-
 """
     entropy(y::Vector{T}) where T
 

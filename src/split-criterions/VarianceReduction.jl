@@ -1,4 +1,3 @@
-using StatsBase: mean
 """
 Calculate the sample variance of a given set of labels.
 

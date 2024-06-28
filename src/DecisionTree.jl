@@ -1,5 +1,3 @@
-using StatsBase: mode, mean
-
 """
 Represents a Leaf in the DecisionTree structure.
 
@@ -167,37 +165,35 @@ function predict(tree::DecisionTree, data::Matrix{T}) where {T}
     return predictions
 end
 
-
-"""
-    print_tree(tree:DecisionTree)
-
-Prints the tree structure. Mainly used for debugging purposes.
-"""
-function print_tree(tree::DecisionTree)
+function Base.show(io::IO, tree::DecisionTree)
     node = tree.root
-    level = 1
-    print(node, level)
+    io_new = IOContext(io, :level => 1)
+    print(io_new, node)
 end
 
-function print(node::Node, level::Int) 
+function Base.show(io::IO, node::Node) 
     indentation = ""
-    for i in 1:level
+    level = get(io, :level, 1)
+    for _ in 1:level
         indentation *= "--"
     end
+
+    io_new = IOContext(io, :level => level + 1)
 
     println("$indentation Feature Index: $(node.feature_index)")
     println("$indentation Data for index: $(node.data[:, node.feature_index])")
     println("$indentation Labels: $(node.labels)")
     println("$indentation Split Value: $(node.split_value)")
     println("$indentation-- Left")
-    print(node.left, level + 1)
+    print(io_new, node.left)
     println("$indentation-- Right")
-    print(node.right, level + 1)
+    print(io_new, node.right)
 end
 
-function print(leaf::Leaf, level::Int)
+function Base.show(io::IO, leaf::Leaf)
     indentation = ""
-    for i in 1:level
+    level = get(io, :level, 1)
+    for _ in 1:level
         indentation *= "--"
     end
     println("$indentation Labels: $(leaf.values)")

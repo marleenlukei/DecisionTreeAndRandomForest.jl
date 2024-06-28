@@ -1,5 +1,3 @@
-using StatsBase: countmap, sample
-
 """
 Calculates the Gini impurity of a set of labels.
 

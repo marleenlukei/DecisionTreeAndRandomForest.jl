@@ -39,11 +39,8 @@ nothing # hide
 
 To take a look at the tree, we can do the following:
 
-!!! warning
-    This function is mainly used for debugging purposes. It could be removed in future releases.
-
 ```@example 1
-print_tree(tree)
+print(tree)
 ```
 
 Lastly, we want to classify some test samples. Therefore we need to create some.

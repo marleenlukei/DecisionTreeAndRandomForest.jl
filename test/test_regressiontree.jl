@@ -1,11 +1,3 @@
-using DecisionTreeAndRandomForest
-using Test
-using MLJ:unpack,partition
-using RDatasets:dataset 
-using DataFrames  
-using StatsBase: mean
-
-
 @testset "RegressionTree" begin
     data = DataFrame(  
         FloorArea = [14, 20, 25, 33, 40, 55, 80],  
@@ -22,7 +14,7 @@ using StatsBase: mean
     
     test_data = [12 1 2002 "Standard";40 2 2020 "Luxury"]
     prediction = predict(tree, test_data)
-    print_tree(tree)
+    print(tree)
     print(prediction)
     @test 600 <= prediction[1] <= 700
     @test 2000 <= prediction[2] <= 2500

@@ -1,8 +1,3 @@
-using DecisionTreeAndRandomForest
-using Test
-using MLJ: load_iris,unpack,partition
-using DataFrames
-
 @testset "RandomForest" begin
     data = load_iris()
 	iris = DataFrame(data)
@@ -14,6 +9,7 @@ using DataFrames
 	test_data = Matrix(X[test, :])
     forest = RandomForest(train_data, train_labels, 5, 4, split_gini, 20, 0.8, 3)
     fit(forest)
+    print(forest)
     predictions = predict(forest, test_data)
     accuracy = sum(predictions .== test_labels) / length(test_labels)
     println("Accuracy: $accuracy")
