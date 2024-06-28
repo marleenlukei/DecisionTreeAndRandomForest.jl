@@ -11,13 +11,13 @@ Represents a RandomForest.
 struct RandomForest
     trees::Vector{DecisionTree}
     max_depth::Int
-    min_samples_split::Int 
+    min_samples_split::Int
     split_criterion::Function
     number_of_trees::Int
     subsample_percentage::Float64
     num_features::Int
 
-    function RandomForest(max_depth::Int, min_samples_split::Int , split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int)
+    function RandomForest(max_depth::Int, min_samples_split::Int, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int)
         new([], max_depth, min_samples_split, split_criterion, number_of_trees, subsample_percentage, num_features)
     end
 end
@@ -33,7 +33,7 @@ Trains a RandomForest.
 `forest` is the RandomForest to be trained.
 `num_features` is the number of features to use when finding the best split.
 """
-function fit(forest::RandomForest, data::Matrix, labels::Vector)
+function fit(forest::RandomForest, data::AbstractMatrix, labels::AbstractVector)
     for _ in 1:forest.number_of_trees
         subsample_length = round(Int, size(data, 1) * forest.subsample_percentage)
         subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
@@ -52,7 +52,7 @@ Predicts the labels for the samples in `data`.
 
 `data` contains the samples to predict the labels of.
 """
-function predict(forest::RandomForest, data::Matrix{T}) where {T}
+function predict(forest::RandomForest, data::AbstractMatrix)
     # create a matrix to store the labels in
     labels = Matrix(undef, length(forest.trees), size(data, 1))
     for (index, tree) in enumerate(forest.trees)

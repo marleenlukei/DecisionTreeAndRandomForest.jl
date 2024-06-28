@@ -3,10 +3,10 @@ Represents a Leaf in the DecisionTree structure.
 
 `values` stores the labels of the data points.
 """
-mutable struct Leaf
-    values::Vector
+mutable struct Leaf{T<:AbstractVector}
+    values::T
 
-    Leaf(values::Vector) = new(values)
+    Leaf(values::T) where {T<:AbstractVector} = new{T}(values)
 end
 
 """
@@ -24,14 +24,14 @@ Represents a Node in the DecisionTree structure.
 
 `labels` contains the respective labels of the datapoints.
 """
-mutable struct Node    
-    left::Union{Node, Leaf}
-    right::Union{Node, Leaf}
+mutable struct Node
+    left::Union{Node,Leaf}
+    right::Union{Node,Leaf}
 
     feature_index::Int
     split_value
 
-    Node(left::Union{Node, Leaf}, right::Union{Node, Leaf}, feature_index::Int, split_value) = new(left, right, feature_index, split_value)
+    Node(left::Union{Node,Leaf}, right::Union{Node,Leaf}, feature_index::Int, split_value) = new(left, right, feature_index, split_value)
 end
 
 """
@@ -56,8 +56,8 @@ mutable struct DecisionTree
     num_features::Int
     split_criterion::Function
 
-    root::Union{Node, Leaf, Missing}
-    
+    root::Union{Node,Leaf,Missing}
+
     DecisionTree(max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function) = new(max_depth, min_samples_split, num_features, split_criterion, missing)
 end
 
@@ -72,17 +72,17 @@ Build the tree structure of the DecisionTree
 
 If `depth` is unspecified, it is set to 0
 """
-function build_tree(data::Matrix, labels::Vector, max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function, depth::Int=0)
+function build_tree(data::AbstractMatrix, labels::AbstractVector, max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function, depth::Int=0)
     # If max_depth is reached or if the data can not be split further, return a leaf
-    if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth) 
-        return Leaf(labels)                                                       
+    if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth)
+        return Leaf(labels)
     end
 
     # if all the labels are the same, return a leaf
-    if allequal(labels) 
+    if allequal(labels)
         return Leaf(labels)
     end
-    
+
     # Get the best split from the respective split_criterion
     feature_index, split_value = split_criterion(data, labels, num_features)
     # Random values for testing purposes
@@ -121,10 +121,10 @@ end
 
 Compute the tree structure.
 """
-function fit(tree::DecisionTree, data::Matrix, labels::Vector)
+function fit(tree::DecisionTree, data::AbstractMatrix, labels::AbstractVector)
     if size(data, 1) != length(labels)
         throw(ArgumentError("The number of rows in data must match the number of elements in labels -> $(size(data, 1)) != $(length(labels))"))
-    end 
+    end
     tree.root = build_tree(data, labels, tree.max_depth, tree.min_samples_split, tree.num_features, tree.split_criterion, 0)
 end
 
@@ -135,9 +135,9 @@ Returns the prediction of the DecisionTree for a list of datapoints.
 
 `data` contains the datapoints to predict.
 """
-function predict(tree::DecisionTree, data::Matrix{T}) where {T}    
+function predict(tree::DecisionTree, data::AbstractMatrix)
     predictions = []
-    
+
     for i in 1:size(data, 1)
         node = tree.root
         while !isa(node, Leaf)
@@ -170,7 +170,7 @@ function Base.show(io::IO, tree::DecisionTree)
     print(io_new, node)
 end
 
-function Base.show(io::IO, node::Node) 
+function Base.show(io::IO, node::Node)
     indentation = ""
     level = get(io, :level, 1)
     for _ in 1:level
