@@ -9,8 +9,8 @@
     X = Matrix(data[:, 1:2])  
     y = data[:, :Rent]  
     
-    tree = DecisionTree(3,3, split_variance,X, y)
-    fit(tree)
+    tree = DecisionTree(3,3, split_variance)
+    fit(tree, X, y)
     
     test_data = [12 1 2002 "Standard";40 2 2020 "Luxury"]
     prediction = predict(tree, test_data)
@@ -29,8 +29,8 @@
     test_labels = Vector{Float64}(y[test_indices])
     train_data = Matrix(X[train_indices, :])
     test_data = Matrix(X[test_indices, :])
-    tree = DecisionTree(train_data, train_labels,split_variance)
-    fit(tree)
+    tree = DecisionTree(split_variance)
+    fit(tree, train_data, train_labels)
     predictions = predict(tree, test_data)
     mse = mean((predictions .- test_labels).^2)
     println("Mean Squared Error: ", mse)

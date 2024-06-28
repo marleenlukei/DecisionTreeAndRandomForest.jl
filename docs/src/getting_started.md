@@ -21,8 +21,8 @@ After that we can initialiate a tree. There are two constructors:
 2. The other one can also take values for `max_depth` and `min_samples_split`.
 
 ```@example 1
-tree = DecisionTree(data, labels, split_gini)
-other_tree = DecisionTree(3, 2, split_gini, data, labels)
+tree = DecisionTree(split_gini)
+other_tree = DecisionTree(3, 2, split_gini)
 nothing # hide
 ```
 
@@ -33,7 +33,7 @@ We can build the tree using the `fit` function.
 
 
 ```@example 1
-fit(tree)
+fit(tree, data, labels)
 nothing # hide
 ```
 

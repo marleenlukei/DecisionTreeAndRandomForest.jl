@@ -5,8 +5,8 @@
     
     # Using Information Gain criterion  
 
-    tree = DecisionTree(data, labels, split_gini)
-    fit(tree)
+    tree = DecisionTree(split_gini)
+    fit(tree, data, labels)
     
     test_data = ["dog" 38.0; "human" 38.0]
     prediction = predict(tree, test_data)
@@ -24,8 +24,8 @@
     train_data = Matrix(X[train, :])
     test_data = Matrix(X[test, :])
 
-    tree = DecisionTree(train_data, train_labels, split_gini)
-    fit(tree)
+    tree = DecisionTree(split_gini)
+    fit(tree, train_data, train_labels)
     predictions = predict(tree, test_data)
     print(tree)
     

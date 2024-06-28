@@ -8,27 +8,23 @@ Represents a RandomForest.
 `trees` is the vector of DecisionTree structures.
 `num_features` is the number of features to use when finding the best split. If -1, all the features are used.
 """
-struct RandomForest{T, L}
-    trees::Vector{DecisionTree{T, L}}
+struct RandomForest
+    trees::Vector{DecisionTree}
+    max_depth::Int
+    min_samples_split::Int 
+    split_criterion::Function
+    number_of_trees::Int
+    subsample_percentage::Float64
     num_features::Int
 
-    function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int , split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L}
-        trees = Array{DecisionTree{T, L}}(undef, number_of_trees)
-        # Create n DecisionTrees and save them in trees
-        for i in 1:number_of_trees
-            subsample_length = round(Int, size(data, 1) * subsample_percentage)
-            subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
-            t = DecisionTree(max_depth, min_samples_split, split_criterion, data[subsample_idx, :], labels[subsample_idx])
-            trees[i] = t
-        end
-        new{T, L}(trees, num_features)
+    function RandomForest(max_depth::Int, min_samples_split::Int , split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int)
+        new([], max_depth, min_samples_split, split_criterion, number_of_trees, subsample_percentage, num_features)
     end
 end
 
-RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, 10, 0.8, -1)
-RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, number_of_trees, 0.8, -1)
-RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, number_of_trees, subsample_percentage, num_features)
-
+RandomForest(split_criterion::Function) = RandomForest(-1, 1, split_criterion, 10, 0.8, -1)
+RandomForest(split_criterion::Function, number_of_trees::Int) = RandomForest(-1, 1, split_criterion, number_of_trees, 0.8, -1)
+RandomForest(split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) = RandomForest(-1, 1, split_criterion, number_of_trees, subsample_percentage, num_features)
 """
     fit(forest::RandomForest)
 
@@ -37,10 +33,13 @@ Trains a RandomForest.
 `forest` is the RandomForest to be trained.
 `num_features` is the number of features to use when finding the best split.
 """
-function fit(forest::RandomForest)
-    # Train every tree in forest.trees
-    for tree in forest.trees
-        fit(tree, forest.num_features)
+function fit(forest::RandomForest, data::Matrix, labels::Vector)
+    for _ in 1:forest.number_of_trees
+        subsample_length = round(Int, size(data, 1) * forest.subsample_percentage)
+        subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
+        tree = DecisionTree(forest.max_depth, forest.min_samples_split, forest.num_features, forest.split_criterion)
+        fit(tree, data[subsample_idx, :], labels[subsample_idx])
+        push!(forest.trees, tree)
     end
 end
 

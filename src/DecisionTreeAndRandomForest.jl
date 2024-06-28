@@ -3,7 +3,6 @@ module DecisionTreeAndRandomForest
 
 using StatsBase: mode, sample, mean, countmap
 
-# Write your package code here.
 include("DecisionTree.jl")
 include("RandomForest.jl")
 include("split-criterions/GiniImpurity.jl")
