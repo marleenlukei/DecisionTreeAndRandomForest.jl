@@ -10,7 +10,7 @@ using DataFrames
     
     # Using Information Gain criterion  
 
-    tree = ClassificationTree(data, labels, split_gini)
+    tree = DecisionTree(data, labels, split_gini)
     fit(tree)
     
     test_data = ["dog" 38.0; "human" 38.0]
@@ -29,7 +29,7 @@ using DataFrames
     train_data = Matrix(X[train, :])
     test_data = Matrix(X[test, :])
 
-    tree = ClassificationTree(train_data, train_labels, split_gini)
+    tree = DecisionTree(train_data, train_labels, split_gini)
     fit(tree)
     predictions = predict(tree, test_data)
     # print_tree(tree)

@@ -7,20 +7,20 @@ using StatsBase: mode, sample
 
 Represents a RandomForest.
 
-`trees` is the vector of ClassificationTree structures.
+`trees` is the vector of DecisionTree structures.
 `num_features` is the number of features to use when finding the best split. If -1, all the features are used.
 """
 struct RandomForest{T, L}
-    trees::Vector{ClassificationTree{T, L}}
+    trees::Vector{DecisionTree{T, L}}
     num_features::Int
 
     function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int , split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L}
-        trees = Array{ClassificationTree{T, L}}(undef, number_of_trees)
-        # Create n ClassificationTrees and save them in trees
+        trees = Array{DecisionTree{T, L}}(undef, number_of_trees)
+        # Create n DecisionTrees and save them in trees
         for i in 1:number_of_trees
             subsample_length = round(Int, size(data, 1) * subsample_percentage)
             subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
-            t = ClassificationTree(max_depth, min_samples_split, split_criterion, data[subsample_idx, :], labels[subsample_idx])
+            t = DecisionTree(max_depth, min_samples_split, split_criterion, data[subsample_idx, :], labels[subsample_idx])
             trees[i] = t
         end
         new{T, L}(trees, num_features)

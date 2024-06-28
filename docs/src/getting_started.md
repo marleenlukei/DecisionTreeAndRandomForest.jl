@@ -21,8 +21,8 @@ After that we can initialiate a tree. There are two constructors:
 2. The other one can also take values for `max_depth` and `min_samples_split`.
 
 ```@example 1
-tree = ClassificationTree(data, labels, split_gini)
-other_tree = ClassificationTree(3, 2, split_gini, data, labels)
+tree = DecisionTree(data, labels, split_gini)
+other_tree = DecisionTree(3, 2, split_gini, data, labels)
 nothing # hide
 ```
 

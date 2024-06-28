@@ -1,8 +1,9 @@
 using DecisionTreeAndRandomForest
 using Test
 
-include("../src/GiniImpurity.jl")
-include("../src/InformationGain.jl")
+include("../src/split-criterions/GiniImpurity.jl")
+include("../src/split-criterions/InformationGain.jl")
+include("../src/split-criterions/VarianceReduction.jl")
 
 
 @testset "DecisionTreeAndRandomForest.jl" begin

@@ -1,7 +1,7 @@
 using StatsBase: mode, mean
 
 """
-Represents a Leaf in the ClassificationTree structure.
+Represents a Leaf in the DecisionTree structure.
 
 `values` stores the labels of the data points.
 """
@@ -10,7 +10,7 @@ mutable struct Leaf{L}
 end
 
 """
-Represents a Node in the ClassificationTree structure.
+Represents a Node in the DecisionTree structure.
 
 `left` points to the left child.
 
@@ -38,19 +38,19 @@ mutable struct Node{T, L}
 end
 
 """
-Represents a ClassificationTree.
+Represents a DecisionTree.
 
 `max_depth` controls the maximum depth of the tree. If -1, the depth is not limited.
 
 `min_samples_split` controls when a node in the decision tree should be split.
 
-`root` contains the root Node of the ClassificationTree.
+`root` contains the root Node of the DecisionTree.
 
-`data` contains the datapoints of the ClassificationTree.
+`data` contains the datapoints of the DecisionTree.
 
 `labels` contains the respective labels of the datapoints.
 """
-mutable struct ClassificationTree{T, L}
+mutable struct DecisionTree{T, L}
     """
     If the max_depth is -1, the DecisionTree is of unlimited depth.
     """
@@ -61,17 +61,17 @@ mutable struct ClassificationTree{T, L}
     data::Matrix{T}
     labels::Vector{L}
     
-    ClassificationTree(max_depth::Int, min_samples_split::Int, split_criterion::Function, data::Matrix{T}, labels::Vector{L}) where {T, L} = 
+    DecisionTree(max_depth::Int, min_samples_split::Int, split_criterion::Function, data::Matrix{T}, labels::Vector{L}) where {T, L} = 
         size(data, 1) == length(labels) ? new{T, L}(max_depth, min_samples_split, split_criterion, missing, data, labels) : throw(ArgumentError("The number of rows in data must match the number of elements in labels"))
 end
 
-ClassificationTree(data, labels, split_criterion) = ClassificationTree(-1, 1, split_criterion, data, labels)
+DecisionTree(data, labels, split_criterion) = DecisionTree(-1, 1, split_criterion, data, labels)
 
 
 """
     build_tree(data, labels, max_depth, min_samples_split, depth)
 
-Build the tree structure of the ClassificationTree
+Build the tree structure of the DecisionTree
 
 If `depth` is unspecified, it is set to 0
 """
@@ -123,22 +123,22 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
 end
 
 """
-    fit(tree::ClassificationTree)
+    fit(tree::DecisionTree)
 
 Compute the tree structure.
 """
-function fit(tree::ClassificationTree, num_features::Int=-1)
+function fit(tree::DecisionTree, num_features::Int=-1)
     tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, tree.split_criterion, 0, num_features)
 end
 
 """
-    predict(tree::ClassificationTree, data::Matrix{T})
+    predict(tree::DecisionTree, data::Matrix{T})
 
-Returns the prediction of the ClassificationTree for a list of datapoints.
+Returns the prediction of the DecisionTree for a list of datapoints.
 
 `data` contains the datapoints to predict.
 """
-function predict(tree::ClassificationTree, data::Matrix{T}) where {T}    
+function predict(tree::DecisionTree, data::Matrix{T}) where {T}    
     predictions = []
     
     for i in 1:size(data, 1)
@@ -169,11 +169,11 @@ end
 
 
 """
-    print_tree(tree:ClassificationTree)
+    print_tree(tree:DecisionTree)
 
 Prints the tree structure. Mainly used for debugging purposes.
 """
-function print_tree(tree::ClassificationTree)
+function print_tree(tree::DecisionTree)
     node = tree.root
     level = 1
     print(node, level)
