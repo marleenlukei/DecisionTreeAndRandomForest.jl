@@ -61,8 +61,8 @@ mutable struct DecisionTree
     DecisionTree(max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function) = new(max_depth, min_samples_split, num_features, split_criterion, missing)
 end
 
-DecisionTree(split_criterion) = DecisionTree(-1, 1, -1, split_criterion)
-DecisionTree(max_depth, min_samples_split, split_criterion) = DecisionTree(max_depth, min_samples_split, -1, split_criterion)
+DecisionTree(split_criterion::Function) = DecisionTree(-1, 1, -1, split_criterion)
+DecisionTree(max_depth::Int, min_samples_split::Int, split_criterion::Function) = DecisionTree(max_depth, min_samples_split, -1, split_criterion)
 
 
 """
