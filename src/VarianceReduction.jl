@@ -47,13 +47,17 @@ function split_node_vr(data::Matrix{T}, labels::Vector{L}, index, value) where {
     return left, right
 end
 
-function find_best_split_vr(data::Matrix{T}, labels::Vector{L}) where {T, L}  
+function find_best_split_vr(data::Matrix{T}, labels::Vector{L}, num_features_to_use::Int=-1) where {T, L}  
     best_feature_index = 0  
     best_threshold = 0  
     best_variance = -Inf  
     num_features = size(data, 2) 
-      
-    for feature in 1:num_features  
+    features_to_use = 1:num_features
+    if (num_features_to_use != -1)
+        features_to_use = sample(1:num_features, num_features_to_use, replace=false)
+    end
+
+    for feature in features_to_use 
         thresholds = unique(data[:, feature])  
         for threshold in thresholds  
             left_labels,right_labels = split_node_vr(data, labels, feature, threshold) 
@@ -74,6 +78,6 @@ function find_best_split_vr(data::Matrix{T}, labels::Vector{L}) where {T, L}
     return best_feature_index, best_threshold
 end  
 
-function split_variance(data, labels)
-    return find_best_split_vr(data, labels)
+function split_variance(data, labels, num_features)
+    return find_best_split_vr(data, labels, num_features)
 end
