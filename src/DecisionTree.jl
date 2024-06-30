@@ -85,9 +85,7 @@ function build_tree(data::AbstractMatrix, labels::AbstractVector, max_depth::Int
 
     # Get the best split from the respective split_criterion
     feature_index, split_value = split_criterion(data, labels, num_features)
-    # Random values for testing purposes
-    # feature_index = rand((1:size(data, 2)))
-    # split_value = data[rand((1:size(data, 1))), feature_index]
+
     if feature_index == 0
         return Leaf(labels)
     end
@@ -136,19 +134,24 @@ Returns the prediction of the DecisionTree for a list of datapoints.
 `data` contains the datapoints to predict.
 """
 function predict(tree::DecisionTree, data::AbstractMatrix)
+
+    if isa(tree.root, Missing)
+        throw(UndefVarError("The tree needs to be fitted first!"))
+    end
+
     predictions = []
 
-    for i in 1:size(data, 1)
+    for sample in eachrow(data)
         node = tree.root
         while !isa(node, Leaf)
             if isa(node.split_value, Number)
-                if data[i, node.feature_index] < node.split_value
+                if sample[node.feature_index] < node.split_value
                     node = node.left
                 else
                     node = node.right
                 end
             else
-                if data[i, node.feature_index] != node.split_value
+                if sample[node.feature_index] != node.split_value
                     node = node.left
                 else
                     node = node.right
