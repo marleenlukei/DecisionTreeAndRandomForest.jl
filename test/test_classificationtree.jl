@@ -2,12 +2,12 @@
     # Test 1: Categorical and numerical data with labels
     data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
     labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
-    
+
     # Using Information Gain criterion  
 
     tree = DecisionTree(split_gini)
-    fit(tree, data, labels)
-    
+    fit!(tree, data, labels)
+
     test_data = ["dog" 38.0; "human" 38.0]
     prediction = predict(tree, test_data)
     print(tree)
@@ -25,10 +25,10 @@
     test_data = Matrix(X[test, :])
 
     tree = DecisionTree(split_gini)
-    fit(tree, train_data, train_labels)
+    fit!(tree, train_data, train_labels)
     predictions = predict(tree, test_data)
     print(tree)
-    
+
     accuracy = sum(predictions .== test_labels) / length(test_labels)
     println("Accuracy: $accuracy")
     @test Set(predictions) <= Set(test_labels)

@@ -33,12 +33,12 @@ Trains a RandomForest.
 `forest` is the RandomForest to be trained.
 `num_features` is the number of features to use when finding the best split.
 """
-function fit(forest::RandomForest, data::AbstractMatrix, labels::AbstractVector)
+function fit!(forest::RandomForest, data::AbstractMatrix, labels::AbstractVector)
     for _ in 1:forest.number_of_trees
         subsample_length = round(Int, size(data, 1) * forest.subsample_percentage)
         subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
         tree = DecisionTree(forest.max_depth, forest.min_samples_split, forest.num_features, forest.split_criterion)
-        fit(tree, data[subsample_idx, :], labels[subsample_idx])
+        fit!(tree, data[subsample_idx, :], labels[subsample_idx])
         push!(forest.trees, tree)
     end
 end

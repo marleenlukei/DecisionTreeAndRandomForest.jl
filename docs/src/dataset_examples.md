@@ -29,7 +29,7 @@ Next, we create the classification tree and fit it to the training data:
 
 ```@example 2
 tree = DecisionTree(split_gini)
-fit(tree, train_data, train_labels)  
+fit!(tree, train_data, train_labels)  
 nothing # hide
 ```
 
@@ -85,7 +85,7 @@ Next, we create the Regression Tree and fit it to the training data:
 
 ```@example 3
 tree = DecisionTree(split_variance)
-fit(tree, train_data, train_labels)  
+fit!(tree, train_data, train_labels)  
 nothing # hide
 ```
 

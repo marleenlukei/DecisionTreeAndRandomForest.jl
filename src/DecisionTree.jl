@@ -119,7 +119,7 @@ end
 
 Compute the tree structure.
 """
-function fit(tree::DecisionTree, data::AbstractMatrix, labels::AbstractVector)
+function fit!(tree::DecisionTree, data::AbstractMatrix, labels::AbstractVector)
     if size(data, 1) != length(labels)
         throw(ArgumentError("The number of rows in data must match the number of elements in labels -> $(size(data, 1)) != $(length(labels))"))
     end

@@ -33,7 +33,7 @@ We can build the tree using the `fit` function.
 
 
 ```@example 1
-fit(tree, data, labels)
+fit!(tree, data, labels)
 nothing # hide
 ```
 
