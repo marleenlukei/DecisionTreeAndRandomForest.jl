@@ -1,8 +1,8 @@
 using DecisionTreeAndRandomForest
 using Test
-using MLJ: load_iris,unpack,partition
+using MLJ: load_iris, unpack, partition
 using DataFrames: DataFrame
-using RDatasets: dataset 
+using RDatasets: dataset
 using StatsBase: mean
 
 @testset "DecisionTreeAndRandomForest.jl" begin
