@@ -1,4 +1,4 @@
-```markdown
+
 # Getting Started with DecisionTreeAndRandomForest.jl
 
 This guide will introduce you to the basics of using classification trees with the `DecisionTreeAndRandomForest.jl` package.
