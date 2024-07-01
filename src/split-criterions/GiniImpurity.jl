@@ -50,7 +50,7 @@ Args:
 Returns:
     A tuple containing the left and right sets of labels.
   """
-function split_node(data::AbstractMatrix, labels::AbstractVector, index, value)
+function split_node(data::AbstractMatrix{T}, labels::AbstractVector, index::Int, value::T) where {T}
     x_index = data[:, index]
     # if feature is numerical
     if eltype(identity.(x_index)) <: Number
