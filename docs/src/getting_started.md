@@ -108,5 +108,4 @@ tree = ClassificationTree(data, labels, chi_squared_split)
 ```
 
 This flexibility allows users to tailor the decision tree construction to their specific needs, enhancing the versatility of the `DecisionTreeAndRandomForest.jl` package.
-```
-```
+
