@@ -86,7 +86,7 @@ function build_tree(data::AbstractMatrix, labels::AbstractVector, max_depth::Int
     # Get the best split from the respective split_criterion
     feature_index, split_value = split_criterion(data, labels, num_features)
 
-    if feature_index == 0
+    if feature_index == -1
         return Leaf(labels)
     end
     # Create the mask on the data

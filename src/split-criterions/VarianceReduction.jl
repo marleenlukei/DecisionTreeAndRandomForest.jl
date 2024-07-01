@@ -47,8 +47,8 @@ function split_node_vr(data::AbstractMatrix{T}, labels::AbstractVector, index::I
 end
 
 function find_best_split_vr(data::AbstractMatrix, labels::AbstractVector, num_features_to_use::Int=-1)
-    best_feature_index = 0
-    best_threshold = 0
+    best_feature_index = -1
+    best_threshold = -1
     best_variance = -Inf
     num_features = size(data, 2)
     features_to_use = 1:num_features
