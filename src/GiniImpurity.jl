@@ -1,13 +1,16 @@
 using StatsBase: countmap, sample
+using DocStringExtensions
 
 """
-Calculates the Gini impurity of a set of labels.
+    $(SIGNATURES)
 
-Args:
-    labels: A vector of labels.
+This function calculates the Gini impurity of a set of labels, which measures the homogeneity of the labels within a node. A lower Gini impurity indicates a more homogeneous set of labels.
 
-Returns:
-    The Gini impurity of the labels.
+## Arguments
+- `labels::Vector{L}`: A vector of labels.
+
+## Returns
+- `Float64`: The Gini impurity of the labels.
 """
 function gini_impurity(labels::Vector{L}) where {L}
 
@@ -22,17 +25,18 @@ function gini_impurity(labels::Vector{L}) where {L}
 end
 
 """
-Calculates the weighted Gini impurity of a split.
+    $(SIGNATURES)
 
-Args:
-    left_dataset: A vector of labels for the left subset of the data.
-    right_dataset: A vector of labels for the right subset of the data.
+This function calculates the weighted Gini impurity of a split, which is a measure of the impurity of the split considering the size of each subset. It's used to evaluate the quality of a split in a decision tree.
 
-Returns:
-    The weighted Gini impurity of the split.
+## Arguments
+- `left_dataset::Vector{L}`: A vector of labels for the left subset of the data.
+- `right_dataset::Vector{L}`: A vector of labels for the right subset of the data.
+
+## Returns
+- `Float64`: The weighted Gini impurity of the split.
 """
 function weighted_gini(left_dataset::Vector{L}, right_dataset::Vector{L}) where {L}
-
     number_of_left_rows = length(left_dataset)
     number_of_right_rows = length(right_dataset)
     total = number_of_left_rows + number_of_right_rows
@@ -41,17 +45,19 @@ function weighted_gini(left_dataset::Vector{L}, right_dataset::Vector{L}) where 
   end
 
 """
-Splits the labels into two nodes based on the provided feature and value.
+  $(SIGNATURES)
 
-Args:
-    data: A matrix of features, where each row is a data point and each column is a feature.
-    labels: A vector of labels corresponding to the data points.
-    index: The index of the feature to split on.
-    value: The value to split the feature on.
+This function splits the labels into two subsets based on the provided feature and value. It handles both numerical and categorical features.
 
-Returns:
-    A tuple containing the left and right sets of labels.
-  """
+## Arguments
+- `data::Matrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
+- `labels::Vector{L}`: A vector of labels corresponding to the data points.
+- `index::Int`: The index of the feature to split on.
+- `value`: The value to split the feature on.
+
+## Returns
+- `Tuple{Vector{L}, Vector{L}}`: A tuple containing the left and right sets of labels.
+"""
 function split_node(data::Matrix{T}, labels::Vector{L}, index, value) where {T, L} 
     x_index = data[:, index]
     # if feature is numerical
@@ -67,15 +73,18 @@ function split_node(data::Matrix{T}, labels::Vector{L}, index, value) where {T, 
 end
 
 """
+    $(SIGNATURES)
+
 Finds the best split point for a decision tree node.
 For now it uses the Gini impurity as splitting criterion, but should later be extended to support other criteria.
 
-Args:
-    data: A matrix of features, where each row is a data point and each column is a feature.
-    labels: A vector of labels corresponding to the data points.
+## Arguments
+- `data::Matrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
+- `labels::Vector{L}`: A vector of labels corresponding to the data points.
+- `num_features_to_use::Int=-1`: The number of features to consider for each split. If -1, all features are used.
 
-Returns:
-    A tuple containing the index of the best feature and the best split value.
+## Returns
+- `Tuple{Int, Any}`: A tuple containing the index of the best feature and the best split value.
 """
 function find_best_split(data::Matrix{T}, labels::Vector{L}, num_features_to_use::Int=-1) where {T, L}  
     best_gini = Inf  
@@ -102,7 +111,19 @@ function find_best_split(data::Matrix{T}, labels::Vector{L}, num_features_to_use
     return (best_feature_index, best_feature_value)
 end  
 
+"""
+    $(SIGNATURES)
 
+This function is a wrapper for `find_best_split` to be used as the split criterion in the `build_tree` function.
+
+## Arguments
+- `data::Matrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
+- `labels::Vector{L}`: A vector of labels corresponding to the data points.
+- `num_features::Int`: The number of features to consider for each split.
+
+## Returns
+- `Tuple{Int, Any}`: A tuple containing the index of the best feature and the best split value.
+"""
 function split_gini(data, labels, num_features)
     return find_best_split(data, labels, num_features)
 end

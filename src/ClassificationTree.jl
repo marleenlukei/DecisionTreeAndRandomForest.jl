@@ -1,64 +1,65 @@
 using StatsBase: mode, mean
+using DocStringExtensions
+
 
 """
+    $(SIGNATURES)
+
 Represents a Leaf in the ClassificationTree structure.
 
-`values` stores the labels of the data points.
+## Fields
+$(TYPEDFIELDS)
 """
 mutable struct Leaf{L}
-    values::Vector{L} # represents the prediction/s
+    "Stores the labels of the data points."
+    values::Vector{L} 
 end
 
 """
+    $(SIGNATURES)
+
 Represents a Node in the ClassificationTree structure.
 
-`left` points to the left child.
-
-`right` points to the right child.
-
-`feature_index` stores the index of the selected feature.
-
-`split_value` stores the value on that the data is split.
-
-`data` contains the datapoints of the Node.
-
-`labels` contains the respective labels of the datapoints.
+## Fields
+$(TYPEDFIELDS)
 """
-mutable struct Node{T, L}    
+mutable struct Node{T, L}
+    "Points to the left child."    
     left::Union{Node{T, L}, Leaf{L}, Missing}
+    "Points to the right child."
     right::Union{Node{T, L}, Leaf{L}, Missing}
-
+    "Stores the index of the selected feature."
     feature_index::Int
+    "Stores the value on that the data is split."
     split_value::Union{T, Missing}
-
+    "Contains the datapoints of the Node."
     data::Matrix{T}
+    "Contains the respective labels of the datapoints."
     labels::Vector{L}
 
     Node(data::Matrix{T}, labels::Vector{L}) where {T, L} = new{T, L}(missing, missing, -1, missing, data, labels)
 end
 
 """
+    $(SIGNATURES)
+
 Represents a ClassificationTree.
 
-`max_depth` controls the maximum depth of the tree. If -1, the depth is not limited.
-
-`min_samples_split` controls when a node in the decision tree should be split.
-
-`root` contains the root Node of the ClassificationTree.
-
-`data` contains the datapoints of the ClassificationTree.
-
-`labels` contains the respective labels of the datapoints.
+## Fields
+$(TYPEDFIELDS)
 """
 mutable struct ClassificationTree{T, L}
-    """
-    If the max_depth is -1, the DecisionTree is of unlimited depth.
-    """
+    "Controls the maximum depth of the tree. If -1, the DecisionTree is of unlimited depth."
     max_depth::Int
+    "Controls the minimum number of samples required to split a node."
     min_samples_split::Int
+    "Contains the split criterion function."
     split_criterion::Function
+    "Contains the root node of the ClassificationTree."
     root::Union{Node{T, L}, Leaf{L}, Missing}
+    "Contains the datapoints of the ClassificationTree."
     data::Matrix{T}
+    "Contains the respective labels of the datapoints."
     labels::Vector{L}
     
     ClassificationTree(max_depth::Int, min_samples_split::Int, split_criterion::Function, data::Matrix{T}, labels::Vector{L}) where {T, L} = 
@@ -69,11 +70,21 @@ ClassificationTree(data, labels, split_criterion) = ClassificationTree(-1, 1, sp
 
 
 """
-    build_tree(data, labels, max_depth, min_samples_split, depth)
+    $(SIGNATURES)
 
-Build the tree structure of the ClassificationTree
+This function recursively builds a ClassificationTree by iteratively splitting the data based on the provided `split_criterion`. The process continues until either the maximum depth is reached, the number of samples in a node falls below `min_samples_split` or all labels in a node are the same.
 
-If `depth` is unspecified, it is set to 0
+## Arguments
+- `data::Matrix{T}`: The training data.
+- `labels::Vector{L}`: The labels for the training data.
+- `max_depth::Int`: The maximum depth of the tree.
+- `min_samples_split::Int`: The minimum number of samples required to split a node.
+- `split_criterion::Function`: The function used to determine the best split at each node.
+- `depth::Int=0`: The current depth of the tree (used recursively).
+- `num_features::Int=-1`: The number of features to consider for each split. If -1, all features are used.
+
+## Returns
+- `Union{Node{T, L}, Leaf{L}}`: The root node of the built tree.
 """
 function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, split_criterion::Function, depth::Int=0, num_features::Int=-1) where {T, L}    
     # If max_depth is reached or if the data can not be split further, return a leaf
@@ -88,9 +99,7 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
     
     # Get the best split from the respective split_criterion
     feature_index, split_value = split_criterion(data, labels, num_features)
-    # Random values for testing purposes
-    # feature_index = rand((1:size(data, 2)))
-    # split_value = data[rand((1:size(data, 1))), feature_index]
+
     if feature_index == 0
         return Leaf{L}(labels)
     end
@@ -123,20 +132,32 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
 end
 
 """
-    fit(tree::ClassificationTree)
+    $(SIGNATURES)
 
-Compute the tree structure.
+This function builds the tree structure of the `ClassificationTree` by calling the `build_tree` function. It uses the training data and parameters stored within the `tree` object.
+
+## Arguments
+- `tree::ClassificationTree`: The ClassificationTree to fit.
+- `num_features::Int=-1`: The number of features to consider for each split. If -1, all features are used.
+
+## Returns
+- `Nothing`: This function modifies the `tree` in-place.
 """
 function fit(tree::ClassificationTree, num_features::Int=-1)
     tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, tree.split_criterion, 0, num_features)
 end
 
 """
-    predict(tree::ClassificationTree, data::Matrix{T})
+    $(SIGNATURES)
 
-Returns the prediction of the ClassificationTree for a list of datapoints.
+This function traverses the tree structure of the `ClassificationTree` for each datapoint in `data`. It follows the decision rules based on the split criteria and feature values. If the leaf node contains numerical values, its treated as a regreesion problem and the prediction is the average of those values. If a leaf node contains numerical values, it is treated as a regression problem, and the prediction is the average of those values. If the leaf node contains categorical labels, it is treated as a classification problem, and the prediction is the most frequent label (mode) among the labels in the leaf node.
 
-`data` contains the datapoints to predict.
+## Arguments
+- `tree::ClassificationTree`: The trained ClassificationTree.
+- `data::Matrix{T}`: The datapoints to predict.
+
+## Returns
+- `Vector`: A vector of predictions for each datapoint in `data`.
 """
 function predict(tree::ClassificationTree, data::Matrix{T}) where {T}    
     predictions = []
@@ -169,9 +190,12 @@ end
 
 
 """
-    print_tree(tree:ClassificationTree)
+    $(SIGNATURES)
 
-Prints the tree structure. Mainly used for debugging purposes.
+This function recursively prints the structure of the `ClassificationTree`, providing information about each node and leaf. It's primarily used for debugging and visualizing the tree's structure.
+
+## Arguments
+- `tree::ClassificationTree`: The ClassificationTree to print.
 """
 function print_tree(tree::ClassificationTree)
     node = tree.root

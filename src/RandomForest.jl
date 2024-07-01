@@ -1,17 +1,19 @@
 using StatsBase: mode, sample
+using DocStringExtensions
+
 
 """
-    RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, number_of_trees::Int, subsample_percentage::Float64)
-    RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample_percentage::Float64)
-    RandomForest(data::Matrix{T}, labels::Vector{L})
+    $(SIGNATURES)
 
 Represents a RandomForest.
 
-`trees` is the vector of ClassificationTree structures.
-`num_features` is the number of features to use when finding the best split. If -1, all the features are used.
+## Fields
+$(TYPEDFIELDS)
 """
 struct RandomForest{T, L}
+    "Contains the vector of ClassificationTree structures."
     trees::Vector{ClassificationTree{T, L}}
+    "Contains the number of features to use when finding the best split. If -1, all the features are used."
     num_features::Int
 
     function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int , split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L}
@@ -32,12 +34,15 @@ RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function, numb
 RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, number_of_trees, subsample_percentage, num_features)
 
 """
-    fit(forest::RandomForest)
+    $(SIGNATURES)
 
-Trains a RandomForest.
+This function trains each individual tree in the `RandomForest` by calling the `fit` function on each `ClassificationTree` within the `forest.trees` vector. The `num_features` parameter from the `RandomForest` object is used to control the number of features considered for each split during training.
 
-`forest` is the RandomForest to be trained.
-`num_features` is the number of features to use when finding the best split.
+## Arguments
+- `forest::RandomForest`: The RandomForest to be trained.
+
+## Returns
+- `Nothing`: This function modifies the `forest` in-place.
 """
 function fit(forest::RandomForest)
     # Train every tree in forest.trees
@@ -47,13 +52,17 @@ function fit(forest::RandomForest)
 end
 
 """
-    predict(forest::RandomForest, data::Matrix{T})
+    $(SIGNATURES)
 
-Predicts the labels for the samples in `data`.
+This function predicts the labels for each datapoint in the input dataset by using the trained `RandomForest`. 
+Currently, it makes predictions using each individual tree in the forest and then combines the predictions using the most frequent label for each datapoint (Classification Task).
 
-`forest` is the RandomForest used to predict the labels.
+## Arguments
+- `forest::RandomForest`: The trained RandomForest.
+- `data::Matrix{T}`: The dataset for which to make predictions.
 
-`data` contains the samples to predict the labels of.
+## Returns
+- `Vector`: A vector of predictions for each datapoint in `data`.
 """
 function predict(forest::RandomForest, data::Matrix{T}) where {T}
     # create a matrix to store the labels in
@@ -68,11 +77,15 @@ function predict(forest::RandomForest, data::Matrix{T}) where {T}
 end
 
 """
-    print_forest(forest::RandomForest)
+    $(SIGNATURES)
 
 Prints the structure of the RandomForest.
 
-`forest` is the RandomForest to be printed.
+## Arguments
+- `forest::RandomForest`: The RandomForest to be printed.
+
+## Returns
+- `Nothing`: This function prints the structure of the `RandomForest`.
 """
 function print_forest(forest::RandomForest)
     for (index, tree) in enumerate(forest.trees)
