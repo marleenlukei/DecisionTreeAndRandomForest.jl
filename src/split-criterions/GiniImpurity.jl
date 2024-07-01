@@ -1,5 +1,3 @@
-using StatsBase: countmap, sample
-using DocStringExtensions
 
 """
     $(SIGNATURES)
@@ -37,6 +35,7 @@ This function calculates the weighted Gini impurity of a split, which is a measu
 - `Float64`: The weighted Gini impurity of the split.
 """
 function weighted_gini(left_dataset::Vector{L}, right_dataset::Vector{L}) where {L}
+
     number_of_left_rows = length(left_dataset)
     number_of_right_rows = length(right_dataset)
     total = number_of_left_rows + number_of_right_rows
@@ -53,12 +52,12 @@ This function splits the labels into two subsets based on the provided feature a
 - `data::Matrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
 - `labels::Vector{L}`: A vector of labels corresponding to the data points.
 - `index::Int`: The index of the feature to split on.
-- `value`: The value to split the feature on.
+- `value::Int`: The value to split the feature on.
 
 ## Returns
 - `Tuple{Vector{L}, Vector{L}}`: A tuple containing the left and right sets of labels.
 """
-function split_node(data::Matrix{T}, labels::Vector{L}, index, value) where {T, L} 
+function split_node(data::Matrix{T}, labels::Vector{L}, index::Int, value::Int) where {T, L} 
     x_index = data[:, index]
     # if feature is numerical
     if eltype(identity.(x_index)) <: Number
@@ -81,21 +80,16 @@ For now it uses the Gini impurity as splitting criterion, but should later be ex
 ## Arguments
 - `data::Matrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
 - `labels::Vector{L}`: A vector of labels corresponding to the data points.
-- `num_features_to_use::Int=-1`: The number of features to consider for each split. If -1, all features are used.
 
 ## Returns
 - `Tuple{Int, Any}`: A tuple containing the index of the best feature and the best split value.
 """
-function find_best_split(data::Matrix{T}, labels::Vector{L}, num_features_to_use::Int=-1) where {T, L}  
+function find_best_split(data::Matrix{T}, labels::Vector{L}) where {T, L}  
     best_gini = Inf  
     best_feature_index = -1  
     best_feature_value = -1  
     num_features = size(data, 2)
-    features_to_use = 1:num_features
-    if (num_features_to_use != -1)
-        features_to_use = sample(1:num_features, num_features_to_use, replace=false)
-    end
-    for feature_index in features_to_use 
+    for feature_index in 1:num_features  
         value = data[:, feature_index]  
         unique_value = unique(value)  
         for value in unique_value  
@@ -119,13 +113,12 @@ This function is a wrapper for `find_best_split` to be used as the split criteri
 ## Arguments
 - `data::Matrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
 - `labels::Vector{L}`: A vector of labels corresponding to the data points.
-- `num_features::Int`: The number of features to consider for each split.
 
 ## Returns
 - `Tuple{Int, Any}`: A tuple containing the index of the best feature and the best split value.
 """
-function split_gini(data, labels, num_features)
-    return find_best_split(data, labels, num_features)
+function split_gini(data, labels)
+    return find_best_split(data, labels)
 end
 
 

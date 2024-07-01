@@ -1,6 +1,3 @@
-using StatsBase: mode, sample
-using DocStringExtensions
-
 
 """
     $(SIGNATURES)
@@ -12,26 +9,22 @@ $(TYPEDFIELDS)
 """
 struct RandomForest{T, L}
     "Contains the vector of ClassificationTree structures."
-    trees::Vector{ClassificationTree{T, L}}
+    trees::Vector{DecisionTree}
+    max_depth::Int
+    min_samples_split::Int
+    split_criterion::Function
+    number_of_trees::Int
+    subsample_percentage::Float64
     "Contains the number of features to use when finding the best split. If -1, all the features are used."
     num_features::Int
-
-    function RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int , split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L}
-        trees = Array{ClassificationTree{T, L}}(undef, number_of_trees)
-        # Create n ClassificationTrees and save them in trees
-        for i in 1:number_of_trees
-            subsample_length = round(Int, size(data, 1) * subsample_percentage)
-            subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
-            t = ClassificationTree(max_depth, min_samples_split, split_criterion, data[subsample_idx, :], labels[subsample_idx])
-            trees[i] = t
-        end
-        new{T, L}(trees, num_features)
+    function RandomForest(max_depth::Int, min_samples_split::Int, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int)
+        new([], max_depth, min_samples_split, split_criterion, number_of_trees, subsample_percentage, num_features)
     end
 end
 
-RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, 10, 0.8, -1)
-RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function, number_of_trees::Int) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, number_of_trees, 0.8, -1)
-RandomForest(data::Matrix{T}, labels::Vector{L}, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) where {T, L} = RandomForest(data, labels, -1, 1, split_criterion, number_of_trees, subsample_percentage, num_features)
+RandomForest(split_criterion::Function) = RandomForest(-1, 1, split_criterion, 10, 0.8, -1)
+RandomForest(split_criterion::Function, number_of_trees::Int) = RandomForest(-1, 1, split_criterion, number_of_trees, 0.8, -1)
+RandomForest(split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) = RandomForest(-1, 1, split_criterion, number_of_trees, subsample_percentage, num_features)
 
 """
     $(SIGNATURES)
@@ -44,10 +37,13 @@ This function trains each individual tree in the `RandomForest` by calling the `
 ## Returns
 - `Nothing`: This function modifies the `forest` in-place.
 """
-function fit(forest::RandomForest)
-    # Train every tree in forest.trees
-    for tree in forest.trees
-        fit(tree, forest.num_features)
+function fit!(forest::RandomForest, data::AbstractMatrix, labels::AbstractVector)
+    for _ in 1:forest.number_of_trees
+        subsample_length = round(Int, size(data, 1) * forest.subsample_percentage)
+        subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
+        tree = DecisionTree(forest.max_depth, forest.min_samples_split, forest.num_features, forest.split_criterion)
+        fit!(tree, data[subsample_idx, :], labels[subsample_idx])
+        push!(forest.trees, tree)
     end
 end
 
@@ -64,7 +60,7 @@ Currently, it makes predictions using each individual tree in the forest and the
 ## Returns
 - `Vector`: A vector of predictions for each datapoint in `data`.
 """
-function predict(forest::RandomForest, data::Matrix{T}) where {T}
+function predict(forest::RandomForest, data::AbstractMatrix)
     # create a matrix to store the labels in
     labels = Matrix(undef, length(forest.trees), size(data, 1))
     for (index, tree) in enumerate(forest.trees)
@@ -73,7 +69,12 @@ function predict(forest::RandomForest, data::Matrix{T}) where {T}
         labels[index, :] = labels_for_tree
     end
     # Calculate the mode of every sample
-    return [mode(labels[:, i]) for i in 1:size(labels, 2)]
+    is_regression = eltype(identity.(labels)) <: Number
+    if is_regression
+        return [mean(col) for col in eachcol(labels)]
+    else
+        return [mode(col) for col in eachcol(labels)]
+    end
 end
 
 """
@@ -87,9 +88,9 @@ Prints the structure of the RandomForest.
 ## Returns
 - `Nothing`: This function prints the structure of the `RandomForest`.
 """
-function print_forest(forest::RandomForest)
+function Base.show(io::IO, forest::RandomForest)
     for (index, tree) in enumerate(forest.trees)
-        println("Tree $index")
-        print_tree(tree)
+        println(io, "Tree $index")
+        print(tree)
     end
 end

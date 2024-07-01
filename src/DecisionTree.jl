@@ -1,7 +1,3 @@
-using StatsBase: mode, mean
-using DocStringExtensions
-
-
 """
     $(SIGNATURES)
 
@@ -10,9 +6,10 @@ Represents a Leaf in the ClassificationTree structure.
 ## Fields
 $(TYPEDFIELDS)
 """
-mutable struct Leaf{L}
-    "Stores the labels of the data points."
-    values::Vector{L} 
+mutable struct Leaf{T<:AbstractVector}
+    values::T
+
+    Leaf(values::T) where {T<:AbstractVector} = new{T}(values)
 end
 
 """
@@ -23,21 +20,17 @@ Represents a Node in the ClassificationTree structure.
 ## Fields
 $(TYPEDFIELDS)
 """
-mutable struct Node{T, L}
-    "Points to the left child."    
-    left::Union{Node{T, L}, Leaf{L}, Missing}
+mutable struct Node
+    "Points to the left child." 
+    left::Union{Node,Leaf}
     "Points to the right child."
-    right::Union{Node{T, L}, Leaf{L}, Missing}
+    right::Union{Node,Leaf}
     "Stores the index of the selected feature."
     feature_index::Int
     "Stores the value on that the data is split."
-    split_value::Union{T, Missing}
-    "Contains the datapoints of the Node."
-    data::Matrix{T}
-    "Contains the respective labels of the datapoints."
-    labels::Vector{L}
+    split_value
 
-    Node(data::Matrix{T}, labels::Vector{L}) where {T, L} = new{T, L}(missing, missing, -1, missing, data, labels)
+    Node(left::Union{Node,Leaf}, right::Union{Node,Leaf}, feature_index::Int, split_value) = new(left, right, feature_index, split_value)
 end
 
 """
@@ -48,25 +41,22 @@ Represents a ClassificationTree.
 ## Fields
 $(TYPEDFIELDS)
 """
-mutable struct ClassificationTree{T, L}
+mutable struct DecisionTree
     "Controls the maximum depth of the tree. If -1, the DecisionTree is of unlimited depth."
     max_depth::Int
     "Controls the minimum number of samples required to split a node."
     min_samples_split::Int
+    num_features::Int
     "Contains the split criterion function."
     split_criterion::Function
     "Contains the root node of the ClassificationTree."
-    root::Union{Node{T, L}, Leaf{L}, Missing}
-    "Contains the datapoints of the ClassificationTree."
-    data::Matrix{T}
-    "Contains the respective labels of the datapoints."
-    labels::Vector{L}
-    
-    ClassificationTree(max_depth::Int, min_samples_split::Int, split_criterion::Function, data::Matrix{T}, labels::Vector{L}) where {T, L} = 
-        size(data, 1) == length(labels) ? new{T, L}(max_depth, min_samples_split, split_criterion, missing, data, labels) : throw(ArgumentError("The number of rows in data must match the number of elements in labels"))
+    root::Union{Node,Leaf,Missing}
+
+    DecisionTree(max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function) = new(max_depth, min_samples_split, num_features, split_criterion, missing)
 end
 
-ClassificationTree(data, labels, split_criterion) = ClassificationTree(-1, 1, split_criterion, data, labels)
+DecisionTree(split_criterion::Function) = DecisionTree(-1, 1, -1, split_criterion)
+DecisionTree(max_depth::Int, min_samples_split::Int, split_criterion::Function) = DecisionTree(max_depth, min_samples_split, -1, split_criterion)
 
 
 """
@@ -86,22 +76,22 @@ This function recursively builds a ClassificationTree by iteratively splitting t
 ## Returns
 - `Union{Node{T, L}, Leaf{L}}`: The root node of the built tree.
 """
-function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, split_criterion::Function, depth::Int=0, num_features::Int=-1) where {T, L}    
+function build_tree(data::AbstractMatrix, labels::AbstractVector, max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function, depth::Int=0)
     # If max_depth is reached or if the data can not be split further, return a leaf
-    if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth) 
-        return Leaf{L}(labels)                                                       
+    if length(labels) < min_samples_split || (max_depth != -1 && depth >= max_depth)
+        return Leaf(labels)
     end
 
     # if all the labels are the same, return a leaf
-    if allequal(labels) 
-        return Leaf{L}(labels)
+    if allequal(labels)
+        return Leaf(labels)
     end
-    
+
     # Get the best split from the respective split_criterion
     feature_index, split_value = split_criterion(data, labels, num_features)
 
-    if feature_index == 0
-        return Leaf{L}(labels)
+    if feature_index == -1
+        return Leaf(labels)
     end
     # Create the mask on the data
     if isa(split_value, Number)
@@ -115,17 +105,14 @@ function build_tree(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samp
 
     # if one subtree would be empty return a Leaf
     if (length(left_labels) * length(right_labels) == 0)
-        return Leaf{L}(labels)
+        return Leaf(labels)
     end
 
-    # Create the node with the computed attributes
-    node = Node(data, labels)
-    node.feature_index = feature_index
-    node.split_value = split_value
-
     # Build the subtrees for the node
-    node.left = build_tree(left_data, left_labels, max_depth, min_samples_split, split_criterion, depth + 1, num_features)
-    node.right = build_tree(right_data, right_labels, max_depth, min_samples_split, split_criterion, depth + 1, num_features)
+    left = build_tree(left_data, left_labels, max_depth, min_samples_split, num_features, split_criterion, depth + 1)
+    right = build_tree(right_data, right_labels, max_depth, min_samples_split, num_features, split_criterion, depth + 1)
+    # Create the node with the computed attributes
+    node = Node(left, right, feature_index, split_value)
 
     # Return the node
     return node
@@ -143,8 +130,11 @@ This function builds the tree structure of the `ClassificationTree` by calling t
 ## Returns
 - `Nothing`: This function modifies the `tree` in-place.
 """
-function fit(tree::ClassificationTree, num_features::Int=-1)
-    tree.root = build_tree(tree.data, tree.labels, tree.max_depth, tree.min_samples_split, tree.split_criterion, 0, num_features)
+function fit!(tree::DecisionTree, data::AbstractMatrix, labels::AbstractVector)
+    if size(data, 1) != length(labels)
+        throw(ArgumentError("The number of rows in data must match the number of elements in labels -> $(size(data, 1)) != $(length(labels))"))
+    end
+    tree.root = build_tree(data, labels, tree.max_depth, tree.min_samples_split, tree.num_features, tree.split_criterion, 0)
 end
 
 """
@@ -159,20 +149,25 @@ This function traverses the tree structure of the `ClassificationTree` for each 
 ## Returns
 - `Vector`: A vector of predictions for each datapoint in `data`.
 """
-function predict(tree::ClassificationTree, data::Matrix{T}) where {T}    
+function predict(tree::DecisionTree, data::AbstractMatrix)
+
+    if isa(tree.root, Missing)
+        throw(UndefVarError("The tree needs to be fitted first!"))
+    end
+
     predictions = []
-    
-    for i in 1:size(data, 1)
+
+    for sample in eachrow(data)
         node = tree.root
         while !isa(node, Leaf)
             if isa(node.split_value, Number)
-                if data[i, node.feature_index] < node.split_value
+                if sample[node.feature_index] < node.split_value
                     node = node.left
                 else
                     node = node.right
                 end
             else
-                if data[i, node.feature_index] != node.split_value
+                if sample[node.feature_index] != node.split_value
                     node = node.left
                 else
                     node = node.right
@@ -188,7 +183,6 @@ function predict(tree::ClassificationTree, data::Matrix{T}) where {T}
     return predictions
 end
 
-
 """
     $(SIGNATURES)
 
@@ -197,31 +191,33 @@ This function recursively prints the structure of the `ClassificationTree`, prov
 ## Arguments
 - `tree::ClassificationTree`: The ClassificationTree to print.
 """
-function print_tree(tree::ClassificationTree)
+function Base.show(io::IO, tree::DecisionTree)
     node = tree.root
-    level = 1
-    print(node, level)
+    io_new = IOContext(io, :level => 1)
+    print(io_new, node)
 end
 
-function print(node::Node, level::Int) 
+function Base.show(io::IO, node::Node)
     indentation = ""
-    for i in 1:level
+    level = get(io, :level, 1)
+    for _ in 1:level
         indentation *= "--"
     end
 
+    io_new = IOContext(io, :level => level + 1)
+
     println("$indentation Feature Index: $(node.feature_index)")
-    println("$indentation Data for index: $(node.data[:, node.feature_index])")
-    println("$indentation Labels: $(node.labels)")
     println("$indentation Split Value: $(node.split_value)")
     println("$indentation-- Left")
-    print(node.left, level + 1)
+    print(io_new, node.left)
     println("$indentation-- Right")
-    print(node.right, level + 1)
+    print(io_new, node.right)
 end
 
-function print(leaf::Leaf, level::Int)
+function Base.show(io::IO, leaf::Leaf)
     indentation = ""
-    for i in 1:level
+    level = get(io, :level, 1)
+    for _ in 1:level
         indentation *= "--"
     end
     println("$indentation Labels: $(leaf.values)")

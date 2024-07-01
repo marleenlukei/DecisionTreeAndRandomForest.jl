@@ -1,5 +1,3 @@
-using StatsBase: countmap
-using DocStringExtensions
 
 """
     $(SIGNATURES)
@@ -7,12 +5,12 @@ using DocStringExtensions
 Calculates the entropy of a vector of labels `y`.
 
 ## Arguments
-- `y::Vector{T}`: A vector of labels.
+- `y::AbstractVector`: A vector of labels.
 
 ## Returns
 - `Float64`: The entropy of the vector.
 """
-function entropy(y::Vector{T}) where T
+function entropy(y::AbstractVector)
     counts = countmap(y)
     probs = values(counts) ./ length(y)
     return -sum(p -> p > 0 ? p * log2(p) : 0, probs)
@@ -24,14 +22,14 @@ end
 Calculate the Information Gain of a split.
 
 ## Arguments
-- `y::Vector{T}`: The original labels vector.
-- `y_left::Vector{T}`: The labels vector for the left split.
-- `y_right::Vector{T}`: The labels vector for the right split.
+- `y::AbstractVector{T}`: The original labels vector.
+- `y_left::AbstractVector{T}`: The labels vector for the left split.
+- `y_right::AbstractVector{T}`: The labels vector for the right split.
 
 ## Returns
 - `Float64`: The Information Gain of the split.
 """
-function information_gain(y::Vector{T}, y_left::Vector{T}, y_right::Vector{T}) where T
+function information_gain(y::T, y_left::T, y_right::T) where {T<:AbstractVector}
     H = entropy(y)
     H_left = entropy(y_left)
     H_right = entropy(y_right)
@@ -48,7 +46,7 @@ Returns the left and right splits for both `X` and `y`.
 
 ## Arguments
 - `X::AbstractMatrix{T}`: A matrix of features.
-- `y::Vector{L}`: A vector of labels.
+- `y::AbstractVector{L}`: A vector of labels.
 - `feature::Int`: The index of the feature to split on.
 - `threshold::Real`: The threshold value to split the feature.
 
@@ -56,7 +54,7 @@ Returns the left and right splits for both `X` and `y`.
 - `X_left::AbstractMatrix{T}`, `y_left::Vector{L}`: The left split of the dataset and labels.
 - `X_right::AbstractMatrix{T}`, `y_right::Vector{L}`: The right split of the dataset and labels.
 """
-function split_dataset(X::AbstractMatrix{T}, y::Vector{L}, feature::Int, threshold::Real) where {T, L}
+function split_dataset(X::AbstractMatrix, y::AbstractVector, feature::Int, threshold::Real)
     left_indices = findall(x -> x[feature] <= threshold, eachrow(X))
     right_indices = findall(x -> x[feature] > threshold, eachrow(X))
     X_left = X[left_indices, :]
@@ -74,16 +72,16 @@ Returns the best feature and threshold for the split.
 
 ## Arguments
 - `X::AbstractMatrix{T}`: A matrix of features.
-- `y::Vector{L}`: A vector of labels.
+- `y::AbstractVector{L}`: A vector of labels.
 - `num_features_to_use::Int=-1`: The number of features to consider for each split. If -1, all features are used.
 
 ## Returns
 - `best_feature::Int`: The index of the best feature to split on.
 - `best_threshold::Real`: The threshold value for the best split.
 """
-function best_split(X::AbstractMatrix{T}, y::Vector{L}, num_features_to_use::Int=-1) where {T, L}
+function best_split(X::AbstractMatrix, y::AbstractVector, num_features_to_use::Int=-1)
     best_gain = -Inf
-    best_feature = 0
+    best_feature = -1
     best_threshold = 0.0
     n_features = size(X, 2)
     features_to_use = 1:n_features
@@ -114,13 +112,13 @@ end
 This function is a wrapper for `best_split` to be used as the split criterion in the `build_tree` function.
 
 ## Arguments
-- `data::Matrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
-- `labels::Vector{L}`: A vector of labels corresponding to the data points.
+- `data::AbstractMatrix`: A matrix of features, where each row is a data point and each column is a feature.
+- `labels::AbstractVector`: A vector of labels corresponding to the data points.
 - `num_features::Int`: The number of features to consider for each split.
 
 ## Returns
 - `Tuple{Int, Any}`: A tuple containing the index of the best feature and the best split value.
 """
-function split_ig(data, labels, num_features)
+function split_ig(data::AbstractMatrix, labels::AbstractVector, num_features::Int=-1)
     return best_split(data, labels, num_features)
 end
