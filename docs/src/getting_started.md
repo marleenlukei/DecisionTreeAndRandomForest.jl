@@ -11,6 +11,16 @@ A decision tree is a machine learning model used for both classification and reg
 
 A random forest is an ensemble learning method that constructs multiple decision trees during training and outputs the mode of the classes (classification) or mean prediction (regression) of the individual trees. This approach improves accuracy and reduces overfitting.
 
+
+## Overview of Features
+
+
+- **Classification Trees**: Build trees for classifying data.
+- **Regression Trees**: Construct trees for predicting continuous values.
+- **Random Forests**: Ensemble method that combines multiple decision trees to improve accuracy and robustness.
+- **Custom Splitting Criteria**: Support for various splitting criteria such as Gini Impurity, Information Gain, and Variance Reduction.
+
+
 ## Basic Example of a Classification Tree
 
 ### Step 1: Import the Module

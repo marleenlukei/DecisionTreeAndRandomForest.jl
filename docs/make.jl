@@ -17,6 +17,7 @@ makedocs(
         "Getting Started" => "getting_started.md",
         "Splitting Criterion" => "splitting_criterion.md",
         "Dataset Examples" => "dataset_examples.md",
+        "How to Contribute" => "Contributions.md",
     ],
 )
 
