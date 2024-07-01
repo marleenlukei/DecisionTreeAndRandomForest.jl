@@ -1,13 +1,14 @@
 module DecisionTreeAndRandomForest
 
 
+using StatsBase: mode, sample, mean, countmap
 
-# Write your package code here.
-include("ClassificationTree.jl")
+include("DecisionTree.jl")
 include("RandomForest.jl")
-include("GiniImpurity.jl")
-include("InformationGain.jl")
-include("VarianceReduction.jl")
+include("split-criterions/GiniImpurity.jl")
+include("split-criterions/InformationGain.jl")
+include("split-criterions/VarianceReduction.jl")
 
-export ClassificationTree, fit, predict, print_tree, split_gini, split_ig, split_variance, RandomForest, print_forest
+export DecisionTree, RandomForest, fit!, predict
+export split_gini, split_ig, split_variance
 end

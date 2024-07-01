@@ -1,5 +1,3 @@
-using StatsBase: countmap
-
 """
     entropy(y::Vector{T}) where T
 
@@ -11,7 +9,7 @@ Calculate the entropy of a vector of labels `y`.
 # Returns
 - The entropy of the vector.
 """
-function entropy(y::Vector{T}) where T
+function entropy(y::AbstractVector)
     counts = countmap(y)
     probs = values(counts) ./ length(y)
     return -sum(p -> p > 0 ? p * log2(p) : 0, probs)
@@ -30,7 +28,7 @@ Calculate the Information Gain of a split.
 # Returns
 - The Information Gain of the split.
 """
-function information_gain(y::Vector{T}, y_left::Vector{T}, y_right::Vector{T}) where T
+function information_gain(y::T, y_left::T, y_right::T) where {T<:AbstractVector}
     H = entropy(y)
     H_left = entropy(y_left)
     H_right = entropy(y_right)
@@ -55,7 +53,7 @@ Returns the left and right splits for both `X` and `y`.
 - `X_left`, `y_left`: The left split of the dataset and labels.
 - `X_right`, `y_right`: The right split of the dataset and labels.
 """
-function split_dataset(X::AbstractMatrix{T}, y::Vector{L}, feature::Int, threshold::Real) where {T, L}
+function split_dataset(X::AbstractMatrix, y::AbstractVector, feature::Int, threshold::Real)
     left_indices = findall(x -> x[feature] <= threshold, eachrow(X))
     right_indices = findall(x -> x[feature] > threshold, eachrow(X))
     X_left = X[left_indices, :]
@@ -79,9 +77,9 @@ Returns the best feature and threshold for the split.
 - `best_feature`: The index of the best feature to split on.
 - `best_threshold`: The threshold value for the best split.
 """
-function best_split(X::AbstractMatrix{T}, y::Vector{L}, num_features_to_use::Int=-1) where {T, L}
+function best_split(X::AbstractMatrix, y::AbstractVector, num_features_to_use::Int=-1)
     best_gain = -Inf
-    best_feature = 0
+    best_feature = -1
     best_threshold = 0.0
     n_features = size(X, 2)
     features_to_use = 1:n_features
@@ -107,6 +105,6 @@ function best_split(X::AbstractMatrix{T}, y::Vector{L}, num_features_to_use::Int
 end
 
 
-function split_ig(data, labels, num_features)
+function split_ig(data::AbstractMatrix, labels::AbstractVector, num_features::Int=-1)
     return best_split(data, labels, num_features)
 end
