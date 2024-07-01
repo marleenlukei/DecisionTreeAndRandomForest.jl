@@ -61,7 +61,12 @@ function predict(forest::RandomForest, data::AbstractMatrix)
         labels[index, :] = labels_for_tree
     end
     # Calculate the mode of every sample
-    return [mode(col) for col in eachcol(labels)]
+    is_regression = eltype(identity.(labels)) <: Number
+    if is_regression
+        return [mean(col) for col in eachcol(labels)]
+    else
+        return [mode(col) for col in eachcol(labels)]
+    end
 end
 
 function Base.show(io::IO, forest::RandomForest)

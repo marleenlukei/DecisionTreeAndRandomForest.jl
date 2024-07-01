@@ -16,3 +16,22 @@
     @test Set(predictions) <= Set(test_labels)
     @test accuracy >= 0.90
 end
+
+@testset "RandomRegressionForest" begin
+    data = DataFrame(
+        FloorArea=[14, 20, 25, 33, 40, 55, 80],
+        Rooms=[1, 1, 1, 2, 2, 3, 4],
+        YearBuilt=[1990, 1980, 2000, 2005, 2010, 1999, 2020],
+        Amenities=["Standard", "Modern", "Luxury", "Basic", "Modern", "Standard", "Luxury"],
+        Rent=[500, 800, 1500, 1100, 2200, 2000, 3000]
+    )
+    X = Matrix(data[:, 1:2])
+    y = data[:, :Rent]
+    forest = RandomForest(split_variance)
+    fit!(forest, X, y)
+    test_data = [12 1 2002 "Standard"; 40 2 2020 "Luxury"]
+    predictions = predict(forest, test_data)
+
+    @test 500 <= predictions[1] <= 1200
+    @test 1500 <= predictions[2] <= 2500
+end
