@@ -25,6 +25,8 @@ struct RandomForest
 
     function RandomForest(max_depth::Int, min_samples_split::Int, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int)
         new([], max_depth, min_samples_split, split_criterion, number_of_trees, subsample_percentage, num_features)
+    function RandomForest(max_depth::Int, min_samples_split::Int, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int)
+        new([], max_depth, min_samples_split, split_criterion, number_of_trees, subsample_percentage, num_features)
     end
 end
 
@@ -51,6 +53,13 @@ function fit!(forest::RandomForest, data::AbstractMatrix, labels::AbstractVector
         tree = DecisionTree(forest.max_depth, forest.min_samples_split, forest.num_features, forest.split_criterion)
         fit!(tree, data[subsample_idx, :], labels[subsample_idx])
         push!(forest.trees, tree)
+function fit!(forest::RandomForest, data::AbstractMatrix, labels::AbstractVector)
+    for _ in 1:forest.number_of_trees
+        subsample_length = round(Int, size(data, 1) * forest.subsample_percentage)
+        subsample_idx = sample(1:size(data, 1), subsample_length, replace=true)
+        tree = DecisionTree(forest.max_depth, forest.min_samples_split, forest.num_features, forest.split_criterion)
+        fit!(tree, data[subsample_idx, :], labels[subsample_idx])
+        push!(forest.trees, tree)
     end
 end
 
@@ -67,6 +76,7 @@ Currently, it makes predictions using each individual tree in the forest and the
 ## Returns
 - `AbstractVector`: A vector of predictions for each datapoint in `data`.
 """
+function predict(forest::RandomForest, data::AbstractMatrix)
 function predict(forest::RandomForest, data::AbstractMatrix)
     # create a matrix to store the labels in
     labels = Matrix(undef, length(forest.trees), size(data, 1))
@@ -97,6 +107,8 @@ Prints the structure of the RandomForest.
 """
 function Base.show(io::IO, forest::RandomForest)
     for (index, tree) in enumerate(forest.trees)
+        println(io, "Tree $index")
+        print(tree)
         println(io, "Tree $index")
         print(tree)
     end
