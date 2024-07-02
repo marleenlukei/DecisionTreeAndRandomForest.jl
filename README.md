@@ -9,17 +9,24 @@ DecisionTreeAndRandomForest.jl is a Julia package developed as part of the cours
 
 ## Features
 
-* **Decision Tree:**
-    * Supports both classification and regression tasks.
-    * Offers a choice of splitting criteria:
-        * Gini Impurity
-        * Information Gain
-        * Variance Reduction 
-    * Provides options for controlling tree depth, minimum samples per leaf, and other hyperparameters.
-* **Random Forest:**
-    * Creates an ensemble of decision trees by randomly sampling features and data points.
-    * Improves model robustness and reduces overfitting.
-    * Allows for controlling the number of trees, maximum tree depth, and other hyperparameters.
+### Decision Tree
+
+Decision trees are flowchart-like structures that use a series of "if-then-else" rules to classify or predict an output based on input features. They are created by recursively splitting the data based on the choosen splitting criterion. This package offers the following features for Decision Trees:
+
+* Supports both classification and regression tasks.
+* Offers a choice of splitting criteria:
+    * Gini Impurity
+    * Information Gain
+    * Variance Reduction 
+* Provides options for controlling tree depth, minimum samples per leaf and other hyperparameters.
+
+### Random Forest
+
+Random forests improve model robustness and reduce overfitting by creating an ensemble of decision trees. Each tree in the ensemble is built using a random subset of the data and features, leading to a diverse set of predictions that are combined for the final result. This package offers the following features for Random Forests:
+
+* Creates an ensemble of decision trees by randomly sampling features and data points.
+* Improves model robustness and reduces overfitting.
+* Allows for controlling the number of trees, maximum tree depth and other hyperparameters.
 
 ## Getting started
 Add the package to your local Julia environment via Pkg by running
@@ -27,3 +34,6 @@ Add the package to your local Julia environment via Pkg by running
 add https://github.com/marleenlukei/DecisionTreeAndRandomForest.jl
 ```
 For further details and examples, please refer to the [docs](https://marleenlukei.github.io/DecisionTreeAndRandomForest.jl/).
+
+## Contributing
+We welcome contributions from the community. If you would like to contribute to the project, please refer to the [CONTRIBUTING.md] file for more information.
