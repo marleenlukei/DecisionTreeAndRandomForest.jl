@@ -40,13 +40,13 @@ end
 Splits the labels into two nodes based on the provided feature and value.
 
 ## Arguments
-- `data::AbstractMatrix`: A matrix of features, where each row is a data point and each column is a feature.
+- `data::AbstractMatrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
 - `labels::AbstractVector`: A vector of labels corresponding to the data points.
 - `index::Int`: The index of the feature to split on.
 - `value::T`: The value to split the feature on.
 
 ## Returns
-- `Tuple{Vector{L}, Vector{L}}`: A tuple containing the left and right sets of labels.
+- `Tuple{AbstractVector, AbstractVector}`: A tuple containing the left and right sets of labels.
   """
 function split_node_vr(data::AbstractMatrix{T}, labels::AbstractVector, index::Int, value::T) where {T}
     x_index = data[:, index]
@@ -115,7 +115,7 @@ This function is a wrapper for `find_best_split_vr` to be used as the split crit
 - `num_features::Int`: The number of features to consider for each split.
 
 ## Returns
-- `Tuple{Int, Any}`: A tuple containing the index of the best feature and the best split value.
+- `Tuple{Int, T}`: A tuple containing the index of the best feature and the best split value.
 """
 function split_variance(data::AbstractMatrix, labels::AbstractVector, num_features::Int=-1)
     return find_best_split_vr(data, labels, num_features)

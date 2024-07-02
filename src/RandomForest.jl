@@ -7,20 +7,27 @@ Represents a RandomForest.
 ## Fields
 $(TYPEDFIELDS)
 """
-struct RandomForest{T, L}
-    "Contains the vector of ClassificationTree structures."
+struct RandomForest
+    "Contains the vector of DecisionTree structures."
     trees::Vector{DecisionTree}
+    "Contains the maximum depth of the tree. If -1, the DecisionTree is of unlimited depth."
     max_depth::Int
+    "Contains the minimum number of samples required to split a node."
     min_samples_split::Int
+    "Contains the split criterion function."
     split_criterion::Function
+    "Contains the number of trees in the RandomForest structure."
     number_of_trees::Int
+    "Contains the percentage of the dataset to use for training each tree."
     subsample_percentage::Float64
     "Contains the number of features to use when finding the best split. If -1, all the features are used."
     num_features::Int
+
     function RandomForest(max_depth::Int, min_samples_split::Int, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int)
         new([], max_depth, min_samples_split, split_criterion, number_of_trees, subsample_percentage, num_features)
     end
 end
+
 
 RandomForest(split_criterion::Function) = RandomForest(-1, 1, split_criterion, 10, 0.8, -1)
 RandomForest(split_criterion::Function, number_of_trees::Int) = RandomForest(-1, 1, split_criterion, number_of_trees, 0.8, -1)
@@ -55,10 +62,10 @@ Currently, it makes predictions using each individual tree in the forest and the
 
 ## Arguments
 - `forest::RandomForest`: The trained RandomForest.
-- `data::Matrix{T}`: The dataset for which to make predictions.
+- `data::AbstractMatrix`: The dataset for which to make predictions.
 
 ## Returns
-- `Vector`: A vector of predictions for each datapoint in `data`.
+- `AbstractVector`: A vector of predictions for each datapoint in `data`.
 """
 function predict(forest::RandomForest, data::AbstractMatrix)
     # create a matrix to store the labels in

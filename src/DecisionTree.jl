@@ -46,6 +46,7 @@ mutable struct DecisionTree
     max_depth::Int
     "Controls the minimum number of samples required to split a node."
     min_samples_split::Int
+    "Controls the number of features to consider for each split. If -1, all features are used."
     num_features::Int
     "Contains the split criterion function."
     split_criterion::Function
@@ -65,16 +66,15 @@ DecisionTree(max_depth::Int, min_samples_split::Int, split_criterion::Function) 
 This function recursively builds a ClassificationTree by iteratively splitting the data based on the provided `split_criterion`. The process continues until either the maximum depth is reached, the number of samples in a node falls below `min_samples_split` or all labels in a node are the same.
 
 ## Arguments
-- `data::Matrix{T}`: The training data.
-- `labels::Vector{L}`: The labels for the training data.
+- `data::AbstractMatrix`: The training data.
+- `labels::AbstractVector`: The labels for the training data.
 - `max_depth::Int`: The maximum depth of the tree.
 - `min_samples_split::Int`: The minimum number of samples required to split a node.
 - `split_criterion::Function`: The function used to determine the best split at each node.
 - `depth::Int=0`: The current depth of the tree (used recursively).
-- `num_features::Int=-1`: The number of features to consider for each split. If -1, all features are used.
 
 ## Returns
-- `Union{Node{T, L}, Leaf{L}}`: The root node of the built tree.
+- `Union{Node, Leaf}`: The return value can be one of two types, depending on the state of the tree at each point of recursion.
 """
 function build_tree(data::AbstractMatrix, labels::AbstractVector, max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function, depth::Int=0)
     # If max_depth is reached or if the data can not be split further, return a leaf
@@ -121,11 +121,12 @@ end
 """
     $(SIGNATURES)
 
-This function builds the tree structure of the `ClassificationTree` by calling the `build_tree` function. It uses the training data and parameters stored within the `tree` object.
+This function builds the tree structure of the `ClassificationTree` by calling the `build_tree` function. 
 
 ## Arguments
-- `tree::ClassificationTree`: The ClassificationTree to fit.
-- `num_features::Int=-1`: The number of features to consider for each split. If -1, all features are used.
+- `tree::DecisionTree`: The ClassificationTree to fit.
+- `data::AbstractMatrix`: The training data.
+- `labels::AbstractVector`: The labels for the training data.
 
 ## Returns
 - `Nothing`: This function modifies the `tree` in-place.
@@ -143,8 +144,8 @@ end
 This function traverses the tree structure of the `ClassificationTree` for each datapoint in `data`. It follows the decision rules based on the split criteria and feature values. If the leaf node contains numerical values, its treated as a regreesion problem and the prediction is the average of those values. If a leaf node contains numerical values, it is treated as a regression problem, and the prediction is the average of those values. If the leaf node contains categorical labels, it is treated as a classification problem, and the prediction is the most frequent label (mode) among the labels in the leaf node.
 
 ## Arguments
-- `tree::ClassificationTree`: The trained ClassificationTree.
-- `data::Matrix{T}`: The datapoints to predict.
+- `tree::DecisionTree`: The trained ClassificationTree.
+- `data::AbstractMatrix`: The datapoints to predict.
 
 ## Returns
 - `Vector`: A vector of predictions for each datapoint in `data`.
@@ -189,7 +190,8 @@ end
 This function recursively prints the structure of the `ClassificationTree`, providing information about each node and leaf. It's primarily used for debugging and visualizing the tree's structure.
 
 ## Arguments
-- `tree::ClassificationTree`: The ClassificationTree to print.
+- `io::IO`: The IO context to print the tree structure.
+- `tree::DecisionTree`: The ClassificationTree to print.
 """
 function Base.show(io::IO, tree::DecisionTree)
     node = tree.root

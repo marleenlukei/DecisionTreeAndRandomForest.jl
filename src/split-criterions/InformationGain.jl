@@ -45,14 +45,14 @@ Split the dataset `X` and labels `y` based on a `feature` and a `threshold`.
 Returns the left and right splits for both `X` and `y`.
 
 ## Arguments
-- `X::AbstractMatrix{T}`: A matrix of features.
-- `y::AbstractVector{L}`: A vector of labels.
+- `X::AbstractMatrix`: A matrix of features.
+- `y::AbstractVector`: A vector of labels.
 - `feature::Int`: The index of the feature to split on.
 - `threshold::Real`: The threshold value to split the feature.
 
 ## Returns
-- `X_left::AbstractMatrix{T}`, `y_left::Vector{L}`: The left split of the dataset and labels.
-- `X_right::AbstractMatrix{T}`, `y_right::Vector{L}`: The right split of the dataset and labels.
+- `X_left::AbstractMatrix`, `y_left::AbstractVector`: The left split of the dataset and labels.
+- `X_right::AbstractMatrix`, `y_right::AbstractVector`: The right split of the dataset and labels.
 """
 function split_dataset(X::AbstractMatrix, y::AbstractVector, feature::Int, threshold::Real)
     left_indices = findall(x -> x[feature] <= threshold, eachrow(X))
@@ -71,8 +71,8 @@ Find the best split for the dataset `X` and labels `y` based on Information Gain
 Returns the best feature and threshold for the split.
 
 ## Arguments
-- `X::AbstractMatrix{T}`: A matrix of features.
-- `y::AbstractVector{L}`: A vector of labels.
+- `X::AbstractMatrix`: A matrix of features.
+- `y::AbstractVector`: A vector of labels.
 - `num_features_to_use::Int=-1`: The number of features to consider for each split. If -1, all features are used.
 
 ## Returns
@@ -117,7 +117,7 @@ This function is a wrapper for `best_split` to be used as the split criterion in
 - `num_features::Int`: The number of features to consider for each split.
 
 ## Returns
-- `Tuple{Int, Any}`: A tuple containing the index of the best feature and the best split value.
+- `Tuple{Int, Real}`: A tuple containing the index of the best feature and the best split value.
 """
 function split_ig(data::AbstractMatrix, labels::AbstractVector, num_features::Int=-1)
     return best_split(data, labels, num_features)
