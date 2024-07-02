@@ -87,9 +87,10 @@ end
 """
     $(SIGNATURES)
 
-Prints the structure of the RandomForest.
+This function recursively prints the structure of the ForestTree. It's primarily used for debugging and visualizing the Forest structure.
 
 ## Arguments
+- `io::IO`: The IO context to print the Forest structure.
 - `forest::RandomForest`: The RandomForest to be printed.
 
 ## Returns

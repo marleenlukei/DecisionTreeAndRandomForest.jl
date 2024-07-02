@@ -1,7 +1,7 @@
 """
     $(SIGNATURES)
 
-Represents a Leaf in the ClassificationTree structure.
+Represents a Leaf in the DecisionTree structure.
 
 ## Fields
 $(TYPEDFIELDS)
@@ -15,7 +15,7 @@ end
 """
     $(SIGNATURES)
 
-Represents a Node in the ClassificationTree structure.
+Represents a Node in the DecisionTree structure.
 
 ## Fields
 $(TYPEDFIELDS)
@@ -36,7 +36,7 @@ end
 """
     $(SIGNATURES)
 
-Represents a ClassificationTree.
+Represents a DecisionTree.
 
 ## Fields
 $(TYPEDFIELDS)
@@ -50,7 +50,7 @@ mutable struct DecisionTree
     num_features::Int
     "Contains the split criterion function."
     split_criterion::Function
-    "Contains the root node of the ClassificationTree."
+    "Contains the root node of the DecisionTree."
     root::Union{Node,Leaf,Missing}
 
     DecisionTree(max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function) = new(max_depth, min_samples_split, num_features, split_criterion, missing)
@@ -63,7 +63,7 @@ DecisionTree(max_depth::Int, min_samples_split::Int, split_criterion::Function) 
 """
     $(SIGNATURES)
 
-This function recursively builds a ClassificationTree by iteratively splitting the data based on the provided `split_criterion`. The process continues until either the maximum depth is reached, the number of samples in a node falls below `min_samples_split` or all labels in a node are the same.
+This function recursively builds a DecisionTree by iteratively splitting the data based on the provided `split_criterion`. The process continues until either the maximum depth is reached, the number of samples in a node falls below `min_samples_split` or all labels in a node are the same.
 
 ## Arguments
 - `data::AbstractMatrix`: The training data.
@@ -121,10 +121,10 @@ end
 """
     $(SIGNATURES)
 
-This function builds the tree structure of the `ClassificationTree` by calling the `build_tree` function. 
+This function builds the tree structure of the `DecisionTree` by calling the `build_tree` function. 
 
 ## Arguments
-- `tree::DecisionTree`: The ClassificationTree to fit.
+- `tree::DecisionTree`: The DecisionTree to fit.
 - `data::AbstractMatrix`: The training data.
 - `labels::AbstractVector`: The labels for the training data.
 
@@ -141,10 +141,10 @@ end
 """
     $(SIGNATURES)
 
-This function traverses the tree structure of the `ClassificationTree` for each datapoint in `data`. It follows the decision rules based on the split criteria and feature values. If the leaf node contains numerical values, its treated as a regreesion problem and the prediction is the average of those values. If a leaf node contains numerical values, it is treated as a regression problem, and the prediction is the average of those values. If the leaf node contains categorical labels, it is treated as a classification problem, and the prediction is the most frequent label (mode) among the labels in the leaf node.
+This function traverses the tree structure of the `DecisionTree` for each datapoint in `data`. It follows the decision rules based on the split criteria and feature values. If the leaf node contains numerical values, its treated as a regreesion problem and the prediction is the average of those values. If a leaf node contains numerical values, it is treated as a regression problem, and the prediction is the average of those values. If the leaf node contains categorical labels, it is treated as a classification problem, and the prediction is the most frequent label (mode) among the labels in the leaf node.
 
 ## Arguments
-- `tree::DecisionTree`: The trained ClassificationTree.
+- `tree::DecisionTree`: The trained DecisionTree.
 - `data::AbstractMatrix`: The datapoints to predict.
 
 ## Returns
@@ -187,11 +187,14 @@ end
 """
     $(SIGNATURES)
 
-This function recursively prints the structure of the `ClassificationTree`, providing information about each node and leaf. It's primarily used for debugging and visualizing the tree's structure.
+This function recursively prints the structure of the `DecisionTree`, providing information about each node and leaf. It's primarily used for debugging and visualizing the tree's structure.
 
 ## Arguments
 - `io::IO`: The IO context to print the tree structure.
-- `tree::DecisionTree`: The ClassificationTree to print.
+- `tree::DecisionTree`: The DecisionTree to print.
+
+## Returns
+- `Nothing`: This function prints the structure of the `DecisionTree`.
 """
 function Base.show(io::IO, tree::DecisionTree)
     node = tree.root
