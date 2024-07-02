@@ -100,7 +100,5 @@ function Base.show(io::IO, forest::RandomForest)
     for (index, tree) in enumerate(forest.trees)
         println(io, "Tree $index")
         print(tree)
-        println(io, "Tree $index")
-        print(tree)
     end
 end

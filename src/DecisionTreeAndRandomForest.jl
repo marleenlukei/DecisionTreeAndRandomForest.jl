@@ -3,7 +3,6 @@ module DecisionTreeAndRandomForest
 using DocStringExtensions
 using StatsBase: mode, sample, mean, countmap
 
-using StatsBase: mode, sample, mean, countmap
 
 include("DecisionTree.jl")
 include("RandomForest.jl")
