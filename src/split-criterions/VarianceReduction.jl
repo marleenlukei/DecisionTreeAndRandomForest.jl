@@ -1,17 +1,31 @@
 """
-Calculate the sample variance of a given set of labels.
+    $(SIGNATURES)
 
-Args:
-    y: A vector of numerical labels for which the variance is to be computed.
+Calculate the sample variance of a given set of labels. It uses the standard formula for sample variance.
 
-Returns:
-    variance: The sample variance of the input label vector y.
+## Arguments
+- `y::AbstractVector`: A vector of numerical labels for which the variance is to be computed.
+
+## Returns
+- `Float64`: The sample variance of the input label vector `y`.
 """
 function variance(y::AbstractVector)
     variance = sum((y .- mean(y)) .^ 2) / length(y) - 1
     return variance
 end
 
+"""
+    $(SIGNATURES)
+
+Calculates the variance reduction achieved by a split.
+
+## Arguments
+- `left_dataset::AbstractVector{T}`: A vector of labels for the left subset of the data.
+- `right_dataset::AbstractVector{T}`: A vector of labels for the right subset of the data.
+
+## Returns
+- `Float64`: The variance reduction achieved by the split.
+"""
 function variance_reduction(left_dataset::T, right_dataset::T) where {T<:AbstractVector}
     number_of_left_rows = length(left_dataset)
     number_of_right_rows = length(right_dataset)
@@ -21,16 +35,18 @@ function variance_reduction(left_dataset::T, right_dataset::T) where {T<:Abstrac
 end
 
 """
+    $(SIGNATURES)
+
 Splits the labels into two nodes based on the provided feature and value.
 
-Args:
-    data: A matrix of features, where each row is a data point and each column is a feature.
-    labels: A vector of labels corresponding to the data points.
-    index: The index of the feature to split on.
-    value: The value to split the feature on.
+## Arguments
+- `data::AbstractMatrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
+- `labels::AbstractVector`: A vector of labels corresponding to the data points.
+- `index::Int`: The index of the feature to split on.
+- `value::T`: The value to split the feature on.
 
-Returns:
-    A tuple containing the left and right sets of labels.
+## Returns
+- `Tuple{AbstractVector, AbstractVector}`: A tuple containing the left and right sets of labels.
   """
 function split_node_vr(data::AbstractMatrix{T}, labels::AbstractVector, index::Int, value::T) where {T}
     x_index = data[:, index]
@@ -46,6 +62,19 @@ function split_node_vr(data::AbstractMatrix{T}, labels::AbstractVector, index::I
     return left, right
 end
 
+"""
+    $(SIGNATURES)
+
+Finds the best split point for a decision tree node using variance reduction.
+
+## Arguments
+- `data::AbstractMatrix`: A matrix of features, where each row is a data point and each column is a feature.
+- `labels::AbstractVector`: A vector of labels corresponding to the data points.
+- `num_features_to_use::Int=-1`: The number of features to consider for each split. If -1, all features are used.
+
+## Returns
+- `Tuple{Int, Any}`: A tuple containing the index of the best feature and the best split value.
+"""
 function find_best_split_vr(data::AbstractMatrix, labels::AbstractVector, num_features_to_use::Int=-1)
     best_feature_index = -1
     best_threshold = -1
@@ -77,6 +106,17 @@ function find_best_split_vr(data::AbstractMatrix, labels::AbstractVector, num_fe
     return best_feature_index, best_threshold
 end
 
+"""
+This function is a wrapper for `find_best_split_vr` to be used as the split criterion in the `build_tree` function.
+
+## Arguments
+- `data::AbstractMatrix`: A matrix of features, where each row is a data point and each column is a feature.
+- `labels::AbstractVector`: A vector of labels corresponding to the data points.
+- `num_features::Int`: The number of features to consider for each split.
+
+## Returns
+- `Tuple{Int, T}`: A tuple containing the index of the best feature and the best split value.
+"""
 function split_variance(data::AbstractMatrix, labels::AbstractVector, num_features::Int=-1)
     return find_best_split_vr(data, labels, num_features)
 end

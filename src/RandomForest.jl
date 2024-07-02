@@ -1,20 +1,26 @@
+
 """
-    RandomForest(data::Matrix{T}, labels::Vector{L}, max_depth::Int, min_samples_split::Int, number_of_trees::Int, subsample_percentage::Float64)
-    RandomForest(data::Matrix{T}, labels::Vector{L}, number_of_trees::Int, subsample_percentage::Float64)
-    RandomForest(data::Matrix{T}, labels::Vector{L})
+    $(SIGNATURES)
 
 Represents a RandomForest.
 
-`trees` is the vector of DecisionTree structures.
-`num_features` is the number of features to use when finding the best split. If -1, all the features are used.
+## Fields
+$(TYPEDFIELDS)
 """
 struct RandomForest
+    "Contains the vector of DecisionTree structures."
     trees::Vector{DecisionTree}
+    "Contains the maximum depth of the tree. If -1, the DecisionTree is of unlimited depth."
     max_depth::Int
+    "Contains the minimum number of samples required to split a node."
     min_samples_split::Int
+    "Contains the split criterion function."
     split_criterion::Function
+    "Contains the number of trees in the RandomForest structure."
     number_of_trees::Int
+    "Contains the percentage of the dataset to use for training each tree."
     subsample_percentage::Float64
+    "Contains the number of features to use when finding the best split. If -1, all the features are used."
     num_features::Int
 
     function RandomForest(max_depth::Int, min_samples_split::Int, split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int)
@@ -22,16 +28,21 @@ struct RandomForest
     end
 end
 
+
 RandomForest(split_criterion::Function) = RandomForest(-1, 1, split_criterion, 10, 0.8, -1)
 RandomForest(split_criterion::Function, number_of_trees::Int) = RandomForest(-1, 1, split_criterion, number_of_trees, 0.8, -1)
 RandomForest(split_criterion::Function, number_of_trees::Int, subsample_percentage::Float64, num_features::Int) = RandomForest(-1, 1, split_criterion, number_of_trees, subsample_percentage, num_features)
+
 """
-    fit(forest::RandomForest)
+    $(SIGNATURES)
 
-Trains a RandomForest.
+This function trains each individual tree in the `RandomForest` by calling the `fit` function on each `ClassificationTree` within the `forest.trees` vector. The `num_features` parameter from the `RandomForest` object is used to control the number of features considered for each split during training.
 
-`forest` is the RandomForest to be trained.
-`num_features` is the number of features to use when finding the best split.
+## Arguments
+- `forest::RandomForest`: The RandomForest to be trained.
+
+## Returns
+- `Nothing`: This function modifies the `forest` in-place.
 """
 function fit!(forest::RandomForest, data::AbstractMatrix, labels::AbstractVector)
     for _ in 1:forest.number_of_trees
@@ -44,13 +55,17 @@ function fit!(forest::RandomForest, data::AbstractMatrix, labels::AbstractVector
 end
 
 """
-    predict(forest::RandomForest, data::Matrix{T})
+    $(SIGNATURES)
 
-Predicts the labels for the samples in `data`.
+This function predicts the labels for each datapoint in the input dataset by using the trained `RandomForest`. 
+Currently, it makes predictions using each individual tree in the forest and then combines the predictions using the most frequent label for each datapoint (Classification Task).
 
-`forest` is the RandomForest used to predict the labels.
+## Arguments
+- `forest::RandomForest`: The trained RandomForest.
+- `data::AbstractMatrix`: The dataset for which to make predictions.
 
-`data` contains the samples to predict the labels of.
+## Returns
+- `AbstractVector`: A vector of predictions for each datapoint in `data`.
 """
 function predict(forest::RandomForest, data::AbstractMatrix)
     # create a matrix to store the labels in
@@ -69,6 +84,18 @@ function predict(forest::RandomForest, data::AbstractMatrix)
     end
 end
 
+"""
+    $(SIGNATURES)
+
+This function recursively prints the structure of the ForestTree. It's primarily used for debugging and visualizing the Forest structure.
+
+## Arguments
+- `io::IO`: The IO context to print the Forest structure.
+- `forest::RandomForest`: The RandomForest to be printed.
+
+## Returns
+- `Nothing`: This function prints the structure of the `RandomForest`.
+"""
 function Base.show(io::IO, forest::RandomForest)
     for (index, tree) in enumerate(forest.trees)
         println(io, "Tree $index")

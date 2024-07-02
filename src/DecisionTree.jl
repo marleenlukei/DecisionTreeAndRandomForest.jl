@@ -1,7 +1,10 @@
 """
+    $(SIGNATURES)
+
 Represents a Leaf in the DecisionTree structure.
 
-`values` stores the labels of the data points.
+## Fields
+$(TYPEDFIELDS)
 """
 mutable struct Leaf{T<:AbstractVector}
     values::T
@@ -10,52 +13,44 @@ mutable struct Leaf{T<:AbstractVector}
 end
 
 """
+    $(SIGNATURES)
+
 Represents a Node in the DecisionTree structure.
 
-`left` points to the left child.
-
-`right` points to the right child.
-
-`feature_index` stores the index of the selected feature.
-
-`split_value` stores the value on that the data is split.
-
-`data` contains the datapoints of the Node.
-
-`labels` contains the respective labels of the datapoints.
+## Fields
+$(TYPEDFIELDS)
 """
 mutable struct Node
+    "Points to the left child." 
     left::Union{Node,Leaf}
+    "Points to the right child."
     right::Union{Node,Leaf}
-
+    "Stores the index of the selected feature."
     feature_index::Int
+    "Stores the value on that the data is split."
     split_value
 
     Node(left::Union{Node,Leaf}, right::Union{Node,Leaf}, feature_index::Int, split_value) = new(left, right, feature_index, split_value)
 end
 
 """
+    $(SIGNATURES)
+
 Represents a DecisionTree.
 
-`max_depth` controls the maximum depth of the tree. If -1, the depth is not limited.
-
-`min_samples_split` controls when a node in the decision tree should be split.
-
-`root` contains the root Node of the DecisionTree.
-
-`data` contains the datapoints of the DecisionTree.
-
-`labels` contains the respective labels of the datapoints.
+## Fields
+$(TYPEDFIELDS)
 """
 mutable struct DecisionTree
-    """
-    If the max_depth is -1, the DecisionTree is of unlimited depth.
-    """
+    "Controls the maximum depth of the tree. If -1, the DecisionTree is of unlimited depth."
     max_depth::Int
+    "Controls the minimum number of samples required to split a node."
     min_samples_split::Int
+    "Controls the number of features to consider for each split. If -1, all features are used."
     num_features::Int
+    "Contains the split criterion function."
     split_criterion::Function
-
+    "Contains the root node of the DecisionTree."
     root::Union{Node,Leaf,Missing}
 
     DecisionTree(max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function) = new(max_depth, min_samples_split, num_features, split_criterion, missing)
@@ -66,11 +61,20 @@ DecisionTree(max_depth::Int, min_samples_split::Int, split_criterion::Function) 
 
 
 """
-    build_tree(data, labels, max_depth, min_samples_split, depth)
+    $(SIGNATURES)
 
-Build the tree structure of the DecisionTree
+This function recursively builds a DecisionTree by iteratively splitting the data based on the provided `split_criterion`. The process continues until either the maximum depth is reached, the number of samples in a node falls below `min_samples_split` or all labels in a node are the same.
 
-If `depth` is unspecified, it is set to 0
+## Arguments
+- `data::AbstractMatrix`: The training data.
+- `labels::AbstractVector`: The labels for the training data.
+- `max_depth::Int`: The maximum depth of the tree.
+- `min_samples_split::Int`: The minimum number of samples required to split a node.
+- `split_criterion::Function`: The function used to determine the best split at each node.
+- `depth::Int=0`: The current depth of the tree (used recursively).
+
+## Returns
+- `Union{Node, Leaf}`: The return value can be one of two types, depending on the state of the tree at each point of recursion.
 """
 function build_tree(data::AbstractMatrix, labels::AbstractVector, max_depth::Int, min_samples_split::Int, num_features::Int, split_criterion::Function, depth::Int=0)
     # If max_depth is reached or if the data can not be split further, return a leaf
@@ -115,9 +119,17 @@ function build_tree(data::AbstractMatrix, labels::AbstractVector, max_depth::Int
 end
 
 """
-    fit(tree::DecisionTree)
+    $(SIGNATURES)
 
-Compute the tree structure.
+This function builds the tree structure of the `DecisionTree` by calling the `build_tree` function. 
+
+## Arguments
+- `tree::DecisionTree`: The DecisionTree to fit.
+- `data::AbstractMatrix`: The training data.
+- `labels::AbstractVector`: The labels for the training data.
+
+## Returns
+- `Nothing`: This function modifies the `tree` in-place.
 """
 function fit!(tree::DecisionTree, data::AbstractMatrix, labels::AbstractVector)
     if size(data, 1) != length(labels)
@@ -127,11 +139,16 @@ function fit!(tree::DecisionTree, data::AbstractMatrix, labels::AbstractVector)
 end
 
 """
-    predict(tree::DecisionTree, data::Matrix{T})
+    $(SIGNATURES)
 
-Returns the prediction of the DecisionTree for a list of datapoints.
+This function traverses the tree structure of the `DecisionTree` for each datapoint in `data`. It follows the decision rules based on the split criteria and feature values. If the leaf node contains numerical values, its treated as a regreesion problem and the prediction is the average of those values. If a leaf node contains numerical values, it is treated as a regression problem, and the prediction is the average of those values. If the leaf node contains categorical labels, it is treated as a classification problem, and the prediction is the most frequent label (mode) among the labels in the leaf node.
 
-`data` contains the datapoints to predict.
+## Arguments
+- `tree::DecisionTree`: The trained DecisionTree.
+- `data::AbstractMatrix`: The datapoints to predict.
+
+## Returns
+- `Vector`: A vector of predictions for each datapoint in `data`.
 """
 function predict(tree::DecisionTree, data::AbstractMatrix)
 
@@ -167,6 +184,18 @@ function predict(tree::DecisionTree, data::AbstractMatrix)
     return predictions
 end
 
+"""
+    $(SIGNATURES)
+
+This function recursively prints the structure of the `DecisionTree`, providing information about each node and leaf. It's primarily used for debugging and visualizing the tree's structure.
+
+## Arguments
+- `io::IO`: The IO context to print the tree structure.
+- `tree::DecisionTree`: The DecisionTree to print.
+
+## Returns
+- `Nothing`: This function prints the structure of the `DecisionTree`.
+"""
 function Base.show(io::IO, tree::DecisionTree)
     node = tree.root
     io_new = IOContext(io, :level => 1)
