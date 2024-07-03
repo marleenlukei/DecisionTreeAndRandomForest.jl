@@ -8,5 +8,6 @@ DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
+DocStringExtensions = "0.9"
 StatsBase = "0.33.21, 0.34"
 julia = "1.10"
