@@ -11,6 +11,7 @@ using StatsBase: mean
     include("test_classificationtree.jl")
     include("test_randomforest.jl")
     include("test_regressiontree.jl")
+    include("test_splittingcriterionutils.jl")
 end
 
 
