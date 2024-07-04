@@ -25,7 +25,7 @@ A random forest is an ensemble learning method that constructs multiple decision
 
 First, import the `DecisionTreeAndRandomForest` module:
 
-```julia
+```@example 1
 using DecisionTreeAndRandomForest
 ```
 
@@ -33,32 +33,35 @@ using DecisionTreeAndRandomForest
 
 Prepare some training data and their respective labels:
 
-```julia
+```@example 1
 data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
 labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
+nothing # hide
 ```
 
 ### Step 3: Initialize a Tree
 
 Initialize a classification tree:
 
-```julia
+```@example 1
 tree = DecisionTree(split_gini)
+nothing # hide
 ```
 
 ### Step 4: Build the Tree
 
 Build the tree using the `fit!` function:
 
-```julia
+```@example 1
 fit!(tree, data, labels)
+nothing # hide
 ```
 
 ### Step 5: Print the Tree
 
 To inspect the tree structure, simply print the tree:
 
-```julia
+```@example 1
 print(tree)
 ```
 
@@ -66,8 +69,9 @@ print(tree)
 
 Create some test samples for classification:
 
-```julia
+```@example 1
 test_data = ["dog" 38.0; "human" 38.0]
+nothing # hide
 ```
 
 We expect the output to be `healthy` for the first sample and `sick` for the second one.
@@ -76,9 +80,8 @@ We expect the output to be `healthy` for the first sample and `sick` for the sec
 
 Retrieve the labels assigned to the test samples using the `predict` function:
 
-```julia
+```@example 1
 prediction = predict(tree, test_data)
-println("Decision Tree Predictions: ", prediction)
 ```
 
 By following these steps, you can create and use a basic classification tree. This example illustrates how decision trees can be applied to simple datasets for classification tasks.
@@ -89,40 +92,43 @@ By following these steps, you can create and use a basic classification tree. Th
 
 Use the same training data and labels as before:
 
-```julia
+```@example 1
 data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
 labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
+nothing # hide
 ```
 
 ### Step 2: Initialize a Random Forest
 
 Initialize a random forest with the specified parameters:
 
-```julia
+```@example 1
 forest = RandomForest(split_gini)
+nothing # hide
 ```
 
 ### Step 3: Build the Random Forest
 
 Build the random forest using the `fit!` function:
 
-```julia
+```@example 1
 fit!(forest, data, labels)
+nothing # hide
 ```
 
 ### Step 4: Predict Labels
 
 Create some test samples for classification:
 
-```julia
+```@example 1
 test_data = ["dog" 38.0; "human" 38.0]
+nothing # hide
 ```
 
 Retrieve the labels assigned to the test samples using the `predict` function:
 
-```julia
+```@example 1
 forest_predictions = predict(forest, test_data)
-println("Random Forest Predictions: ", forest_predictions)
 ```
 
 By following these steps, you can create and use a basic random forest. This example illustrates how random forests can be applied to simple datasets for classification tasks.
@@ -131,17 +137,18 @@ By following these steps, you can create and use a basic random forest. This exa
 
 To add more splitting criteria, define a new function that computes the desired criterion. For example, to implement a Chi-Squared Split:
 
-```julia
+```@example 1
 function chi_squared_split(data, labels, num_features)
     # Implementation of Chi-Squared split criterion
 end
+nothing # hide
 ```
 
 Then use this new function when creating the tree:
 
-```julia
+```@example 1
 tree = DecisionTree(-1, 1, -1, chi_squared_split)
-fit!(tree, data, labels)
+nothing # hide
 ```
 
 
