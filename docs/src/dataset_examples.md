@@ -2,17 +2,7 @@
 # Decision Trees and Random Forests on Real-World Datasets
 
 
-## Setup
-
-```
-julia
-using Pkg
-Pkg.activate("DecisionTreeAndRandomForest")
-Pkg.add(url="https://github.com/marleenlukei/DecisionTreeAndRandomForest.jl/")
-
-```
-
-## Classification and Random Forest - Classifying Iris Types
+## Classification Tree and Random Forest - Classifying Iris Types
 
 In this tutorial, we will demonstrate how to use the package to create a classification tree and a random forest, and apply them to classify the Iris dataset.
 
@@ -42,6 +32,11 @@ test_data = Matrix(X[test, :])
 Next, we create the decision tree and fit it to the training data:
 
 ```julia
+# Initialize the classification tree with hyperparameters:
+# - max_depth: Maximum depth of the tree (-1 means no limit).
+# - min_samples_split: Minimum number of samples required to split an internal node.
+# - num_features: Number of features to consider when looking for the best split (-1 means all features).
+# - split_criterion: Function to measure the quality of a split.
 tree = DecisionTree(-1, 1, -1, split_gini)
 fit!(tree, train_data, train_labels)
 ```
@@ -66,7 +61,14 @@ println("Decision Tree - Accuracy: ", accuracy)
 Next, we create the random forest and fit it to the training data:
 
 ```julia
-forest = RandomForest(-1, 1, split_gini, 10, 0.8, -1)
+# Initialize the random forest with hyperparameters:
+# - max_depth: Maximum depth of the trees (-1 means no limit).
+# - min_samples_split: Minimum number of samples required to split an internal node.
+# - split_criterion: Function to measure the quality of a split.
+# - number_of_trees: Number of trees in the forest.
+# - subsample_percentage: Percentage of samples to use for each tree (0.8 means 80% of the data).
+# - num_features: Number of features to consider when looking for the best split (-1 means all features).
+forest = RandomForest(7, 3, split_gini, 15, 0.7, -1)  # Using 7 for max_depth, 3 for min_samples_split, 15 for number_of_trees, and 0.7 for subsample_percentage
 fit!(forest, train_data, train_labels)
 ```
 

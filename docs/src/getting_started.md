@@ -20,18 +20,8 @@ A random forest is an ensemble learning method that constructs multiple decision
 
 ## Basic Example of a Classification Tree
 
-### Step 1: Setup
 
-```
-julia
-using Pkg
-Pkg.activate("DecisionTreeAndRandomForest")
-Pkg.add(url="https://github.com/marleenlukei/DecisionTreeAndRandomForest.jl/")
-
-```
-
-
-### Step 2: Import the Module
+### Step 1: Import the Module
 
 First, import the `DecisionTreeAndRandomForest` module:
 
@@ -39,7 +29,7 @@ First, import the `DecisionTreeAndRandomForest` module:
 using DecisionTreeAndRandomForest
 ```
 
-### Step 3: Prepare Training Data
+### Step 2: Prepare Training Data
 
 Prepare some training data and their respective labels:
 
@@ -48,15 +38,15 @@ data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37
 labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
 ```
 
-### Step 4: Initialize a Tree
+### Step 3: Initialize a Tree
 
 Initialize a classification tree:
 
 ```julia
-tree = DecisionTree(-1, 1, -1, split_gini)
+tree = DecisionTree(split_gini)
 ```
 
-### Step 5: Build the Tree
+### Step 4: Build the Tree
 
 Build the tree using the `fit!` function:
 
@@ -64,7 +54,7 @@ Build the tree using the `fit!` function:
 fit!(tree, data, labels)
 ```
 
-### Step 6: Print the Tree
+### Step 5: Print the Tree
 
 To inspect the tree structure, simply print the tree:
 
@@ -72,7 +62,7 @@ To inspect the tree structure, simply print the tree:
 print(tree)
 ```
 
-### Step 7: Classify Test Samples
+### Step 6: Classify Test Samples
 
 Create some test samples for classification:
 
@@ -82,7 +72,7 @@ test_data = ["dog" 38.0; "human" 38.0]
 
 We expect the output to be `healthy` for the first sample and `sick` for the second one.
 
-### Step 8: Predict Labels
+### Step 7: Predict Labels
 
 Retrieve the labels assigned to the test samples using the `predict` function:
 
@@ -109,7 +99,7 @@ labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "h
 Initialize a random forest with the specified parameters:
 
 ```julia
-forest = RandomForest(-1, 1, split_gini, 10, 0.8, -1)
+forest = RandomForest(split_gini)
 ```
 
 ### Step 3: Build the Random Forest
@@ -142,8 +132,6 @@ By following these steps, you can create and use a basic random forest. This exa
 To add more splitting criteria, define a new function that computes the desired criterion. For example, to implement a Chi-Squared Split:
 
 ```julia
-using Statistics: chi2
-
 function chi_squared_split(data, labels, num_features)
     # Implementation of Chi-Squared split criterion
 end
