@@ -21,7 +21,7 @@ Represents a Node in the DecisionTree structure.
 $(TYPEDFIELDS)
 """
 mutable struct Node
-    "Points to the left child." 
+    "Points to the left child."
     left::Union{Node,Leaf}
     "Points to the right child."
     right::Union{Node,Leaf}
@@ -134,6 +134,11 @@ This function builds the tree structure of the `DecisionTree` by calling the `bu
 function fit!(tree::DecisionTree, data::AbstractMatrix, labels::AbstractVector)
     if size(data, 1) != length(labels)
         throw(ArgumentError("The number of rows in data must match the number of elements in labels -> $(size(data, 1)) != $(length(labels))"))
+    end
+    if !(eltype(labels) <: Number)
+        if tree.split_criterion in get_split_criterions("regression")
+            throw(ArgumentError("The chosen split criterion does only work for classification task, please choose another one"))
+        end
     end
     tree.root = build_tree(data, labels, tree.max_depth, tree.min_samples_split, tree.num_features, tree.split_criterion, 0)
 end
