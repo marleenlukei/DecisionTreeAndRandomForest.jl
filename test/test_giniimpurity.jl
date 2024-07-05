@@ -76,3 +76,20 @@ end
 
 
 end
+
+@testset "split_gini" begin
+    data = [
+        1 2;
+        1 2;
+        2 2;
+        2 3;
+        3 3;
+        3 3
+    ]
+    labels = ["A", "A", "B", "B", "B", "A"]
+
+    feature_index, feature_value = split_gini(data, labels)
+
+    @test feature_index == 1
+    @test feature_value == 2
+end
