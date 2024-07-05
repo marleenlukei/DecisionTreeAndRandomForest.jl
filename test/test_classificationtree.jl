@@ -30,7 +30,64 @@
     print(tree)
 
     accuracy = sum(predictions .== test_labels) / length(test_labels)
-    println("Accuracy: $accuracy")
+    
     @test Set(predictions) <= Set(test_labels)
     @test accuracy >= 0.90
+end
+
+@testset "RegressionTree" begin
+    data = DataFrame(
+        FloorArea=[14, 20, 25, 33, 40, 55, 80],
+        Rooms=[1, 1, 1, 2, 2, 3, 4],
+        YearBuilt=[1990, 1980, 2000, 2005, 2010, 1999, 2020],
+        Amenities=["Standard", "Modern", "Luxury", "Basic", "Modern", "Standard", "Luxury"],
+        Rent=[500, 800, 1500, 1100, 2200, 2000, 3000]
+    )
+    X = Matrix(data[:, [:FloorArea, :Rooms, :YearBuilt]])
+    y = data[:, :Rent]
+    tree = DecisionTree(split_ig)
+    fit!(tree, X, y)
+    test_data = DataFrame(
+        FloorArea=[12, 40],
+        Rooms=[1, 2],
+        YearBuilt=[2002, 2020],
+        Amenities=["Standard", "Luxury"]
+    )
+    test_X = Matrix(test_data[:, [:FloorArea, :Rooms, :YearBuilt]])
+    predictions = predict(tree, test_X)
+    
+    println("Predictions: ", predictions)
+    
+    @test 500 <= predictions[1] <= 1200
+    @test 1500 <= predictions[2] <= 2500
+end
+
+@testset "fit! - exception handling" begin
+    # Define mismatched data and labels
+    data = rand(10, 3) 
+    labels = rand(9)
+    tree = DecisionTree(split_gini)
+    @test_throws ArgumentError begin
+        fit!(tree, data, labels)
+    end
+
+    try
+        fit!(tree, data, labels)
+    catch e
+        @test occursin("The number of rows in data must match the number of elements in labels", string(e))
+    end
+end
+
+@testset "predict - exception handling" begin
+    test_data = Matrix{Float64}(undef, 0, 0)
+    tree = DecisionTree(split_ig) 
+    @test_throws MethodError begin
+        predict(tree, test_data)
+    end
+
+    try
+        predict(tree, test_data)
+    catch e
+        @test occursin("The tree needs to be fitted first!", string(e))
+    end
 end
