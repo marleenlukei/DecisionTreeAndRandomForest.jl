@@ -77,7 +77,7 @@ end
 
 end
 
-@testset "split_gini" begin
+@testset "split_gini_numerical" begin
     data = [
         1 2;
         1 2;
@@ -92,4 +92,19 @@ end
 
     @test feature_index == 1
     @test feature_value == 2
+end
+
+@testset "split_gini_categorical" begin
+    data = [
+        "low" "blue";
+        "low" "blue";
+        "medium" "red";
+        "high" "blue"
+    ]
+    labels = [1, 1, 2, 2]
+
+    feature_index, feature_value = split_gini(data, labels)
+
+    @test feature_index == 1  
+    @test feature_value == "low"  
 end
