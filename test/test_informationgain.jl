@@ -39,5 +39,20 @@ end
     y = [0, 1, 0, 1]
     best_feature, best_threshold = DecisionTreeAndRandomForest.best_split(X, y, 1)
     @test best_feature == 1
-    @test best_threshold == 2.5
+    @test best_threshold == 3.0
+end
+
+@testset "split_gini_categorical" begin
+    data = [
+        "low" "blue";
+        "low" "blue";
+        "medium" "red";
+        "high" "blue"
+    ]
+    labels = [1, 1, 2, 2]
+
+    feature_index, feature_value = DecisionTreeAndRandomForest.split_ig(data, labels)
+
+    @test feature_index == 1 
+    @test feature_value == "low"  
 end
