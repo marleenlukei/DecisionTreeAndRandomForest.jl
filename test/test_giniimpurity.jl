@@ -88,7 +88,7 @@ end
     ]
     labels = ["A", "A", "B", "B", "B", "A"]
 
-    feature_index, feature_value = split_gini(data, labels)
+    feature_index, feature_value = DecisionTreeAndRandomForest.split_gini(data, labels)
 
     @test feature_index == 1
     @test feature_value == 2
@@ -103,8 +103,8 @@ end
     ]
     labels = [1, 1, 2, 2]
 
-    feature_index, feature_value = split_gini(data, labels)
+    feature_index, feature_value = DecisionTreeAndRandomForest.split_gini(data, labels)
 
-    @test feature_index == 1  
+    @test feature_index == 1 
     @test feature_value == "low"  
 end
