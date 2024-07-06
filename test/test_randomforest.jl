@@ -1,3 +1,5 @@
+using DataFrames
+
 @testset "RandomForest" begin
     data = load_iris()
     iris = DataFrame(data)
@@ -12,7 +14,25 @@
     print(forest)
     predictions = predict(forest, test_data)
     accuracy = sum(predictions .== test_labels) / length(test_labels)
-    println("Accuracy: $accuracy")
+    
+    @test Set(predictions) <= Set(test_labels)
+    @test accuracy >= 0.90
+    
+    data = dataset("MASS", "biopsy")
+    data = dropmissing(data)  
+    X = data[:, 2:end-1]  
+    y = data[:, end]
+    train_indices, test_indices = partition(eachindex(y), 0.7, rng=123)
+    train_labels = Vector{String}(y[train_indices])
+    test_labels = Vector{String}(y[test_indices])
+    train_data = Matrix(X[train_indices, :])
+    test_data = Matrix(X[test_indices, :])
+    forest = RandomForest(split_ig, 10)
+    fit!(forest, train_data, train_labels)  
+    predictions = predict(forest, test_data)  
+    accuracy = sum(predictions .== test_labels) / length(test_labels)
+    
+
     @test Set(predictions) <= Set(test_labels)
     @test accuracy >= 0.90
 end
@@ -34,4 +54,50 @@ end
 
     @test 500 <= predictions[1] <= 1200
     @test 1500 <= predictions[2] <= 2500
+
+    # Generate synthetic data
+    n, m = 1000, 10
+    features = randn(n, m)
+    weights = rand(-2:2, m)
+    labels = features * weights
+    train_indices, test_indices = partition(eachindex(labels), 0.7, rng=123)
+    train_data = features[train_indices, :]
+    test_data = features[test_indices, :]
+    train_labels = labels[train_indices]
+    test_labels = labels[test_indices]
+    forest = RandomForest(split_variance, 20, 0.8, 6)
+    fit!(forest, train_data, train_labels)  
+    predictions = predict(forest, test_data)
+    ss_res = sum((test_labels .- predictions) .^ 2)
+    ss_tot = sum((test_labels .- mean(test_labels)) .^ 2)
+    r2_score = 1 - (ss_res / ss_tot)
+    println("R² Score: ", r2_score)
+
+    @test r2_score >= 0.70
+
+end
+
+@testset "RegressionForest" begin
+    boston = dataset("MASS", "Boston")
+    data = DataFrame(boston)
+    X = data[:, 1:end-1]
+    y = data[:, end]
+    train_indices, test_indices = partition(eachindex(y), 0.95, rng=123)
+    train_labels = Vector{Float64}(y[train_indices])
+    test_labels = Vector{Float64}(y[test_indices])
+    train_data = Matrix(X[train_indices, :])
+    test_data = Matrix(X[test_indices, :])
+    forest = RandomForest(split_ig, 10, 0.9, 10)
+    fit!(forest, train_data, train_labels)  
+    predictions = predict(forest, test_data)
+    mse = mean((predictions .- test_labels) .^ 2)
+    println("Mean Squared Error: ", mse)
+    ss_res = sum((test_labels .- predictions) .^ 2)
+    ss_tot = sum((test_labels .- mean(test_labels)) .^ 2)
+    r2_score = 1 - (ss_res / ss_tot)
+    println("R² Score: ", r2_score)
+
+    @test mse <= 10.0
+    @test r2_score >= 0.75
+
 end
