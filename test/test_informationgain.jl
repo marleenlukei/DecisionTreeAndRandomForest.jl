@@ -37,7 +37,7 @@ end
 @testset "best_split" begin
     X = [1.0 2.0; 3.0 4.0; 2.5 0.5; 4.0 3.0]
     y = [0, 1, 0, 1]
-    best_feature, best_threshold = DecisionTreeAndRandomForest.best_split(X, y, 1)
+    best_feature, best_threshold = DecisionTreeAndRandomForest.best_split(X, y, 2)
     @test best_feature == 1
     @test best_threshold == 3.0
 end
