@@ -88,7 +88,7 @@ Returns the best feature and threshold for the split.
 function best_split(X::AbstractMatrix, y::AbstractVector, num_features_to_use::Int=-1)
     best_gain = -Inf
     best_feature = -1
-    best_threshold = 0.0
+    best_threshold = -1
     n_features = size(X, 2)
     features_to_use = 1:n_features
     if (num_features_to_use != -1)
