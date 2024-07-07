@@ -2,6 +2,16 @@
 
 This package offers multiple options of splitting criterion for evaluating the quality of a split and therefore constructing a decision tree. In the following a brief overview of the available criterion and their use cases is provided.
 
+You can retrieve a list of the available splitting criterions with the function `get_split_criterions`, like so:
+
+
+```@example 1
+using DecisionTreeAndRandomForest # hide
+println(get_split_criterions())
+println(get_split_criterions("classification"))
+println(get_split_criterions("regression"))
+```
+
 ## Gini Impurity
 Gini Impurity measures the likelihood of an incorrect classification of a randomly chosen element if it is labeled according to the distribution of labels in the dataset. 
 Gini Impurity is primarily used in classification problems. A lower Gini impurity indicates a purer node with a higher confidence in predicting the class label. The goal is to minimize the Gini Impurity at each split, thereby creating nodes that are as pure as possible.
