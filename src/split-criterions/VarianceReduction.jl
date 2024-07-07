@@ -10,7 +10,7 @@ Calculate the sample variance of a given set of labels. It uses the standard for
 - `Float64`: The sample variance of the input label vector `y`.
 """
 function variance(y::AbstractVector)
-    variance = sum((y .- mean(y)) .^ 2) / length(y) - 1
+    variance = sum((y .- mean(y)) .^ 2) / (length(y) - 1)
     return variance
 end
 
