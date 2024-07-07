@@ -66,14 +66,33 @@ end
 end
 
 @testset "build_tree - Edge Cases" begin
-    test_data = [1 2; 1  2; 1 2]
-    labels = ["1", "2", "1"]
-    tree = DecisionTree(split_ig) 
-    fit!(tree, test_data, labels)
-    test_data = [1 2]
-    prediction = predict(tree, test_data)
-    print(tree)
+    @testset "Threshold not found" begin
+        test_data = [1 2; 1  2; 1 2]
+        labels = ["1", "2", "1"]
+        tree = DecisionTree(split_ig) 
+        fit!(tree, test_data, labels)
+        test_data = [1 2]
+        prediction = predict(tree, test_data)
+        print(tree)
+    
+        @test prediction[1] == "1"
+    end
 
-    @test prediction[1] == "1"
-
+    @testset "Empty Subtree" begin
+        data_empty_subtree = [1.0 2.0 3.0; 
+                            4.0 5.0 6.0]
+        labels_empty_subtree = [1.0, 2.0]
+        
+        function dummy_split_criterion(data::AbstractMatrix, labels::AbstractVector, num_features::Int=-1)
+            return 1, 1.0
+        end
+    
+        tree = DecisionTree(-1, 1, -1, dummy_split_criterion)
+        fit!(tree, data_empty_subtree, labels_empty_subtree)
+        print(tree)
+    
+        # Check if the root is a Leaf due to empty subtree
+        @test isa(tree.root, DecisionTreeAndRandomForest.Leaf)
+        @test tree.root.values == labels_empty_subtree
+    end
 end
