@@ -42,7 +42,7 @@ end
     @test best_threshold == 3.0
 end
 
-@testset "split_gini_categorical" begin
+@testset "split_ig_categorical" begin
     data = [
         "low" "blue";
         "low" "blue";
