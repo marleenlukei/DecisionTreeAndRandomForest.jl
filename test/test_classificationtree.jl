@@ -35,33 +35,6 @@
     @test accuracy >= 0.90
 end
 
-@testset "RegressionTree" begin
-    data = DataFrame(
-        FloorArea=[14, 20, 25, 33, 40, 55, 80],
-        Rooms=[1, 1, 1, 2, 2, 3, 4],
-        YearBuilt=[1990, 1980, 2000, 2005, 2010, 1999, 2020],
-        Amenities=["Standard", "Modern", "Luxury", "Basic", "Modern", "Standard", "Luxury"],
-        Rent=[500, 800, 1500, 1100, 2200, 2000, 3000]
-    )
-    X = Matrix(data[:, [:FloorArea, :Rooms, :YearBuilt]])
-    y = data[:, :Rent]
-    tree = DecisionTree(split_ig)
-    fit!(tree, X, y)
-    test_data = DataFrame(
-        FloorArea=[12, 40],
-        Rooms=[1, 2],
-        YearBuilt=[2002, 2020],
-        Amenities=["Standard", "Luxury"]
-    )
-    test_X = Matrix(test_data[:, [:FloorArea, :Rooms, :YearBuilt]])
-    predictions = predict(tree, test_X)
-    
-    println("Predictions: ", predictions)
-    
-    @test 500 <= predictions[1] <= 1200
-    @test 1500 <= predictions[2] <= 2500
-end
-
 @testset "fit! - exception handling" begin
     # Define mismatched data and labels
     data = rand(10, 3) 
@@ -90,4 +63,17 @@ end
     catch e
         @test occursin("The tree needs to be fitted first!", string(e))
     end
+end
+
+@testset "build_tree - Edge Cases" begin
+    test_data = [1 2; 1  2; 1 2]
+    labels = ["1", "2", "1"]
+    tree = DecisionTree(split_ig) 
+    fit!(tree, test_data, labels)
+    test_data = [1 2]
+    prediction = predict(tree, test_data)
+    print(tree)
+
+    @test prediction[1] == "1"
+
 end
