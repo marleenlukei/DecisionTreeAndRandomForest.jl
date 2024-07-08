@@ -6,15 +6,15 @@
 end
 
 # Test cases for information_gain
-@testset "Weighted Gain" begin
+@testset "Weighted Entropy" begin
     y = [1, 1, 0, 0, 0, 1, 1, 0]
     y_left = [1, 1, 0, 0]
     y_right = [0, 1, 1, 0]
-    @test DecisionTreeAndRandomForest.weighted_gain(y, y_left, y_right) ≈ 0.0
+    @test DecisionTreeAndRandomForest.weighted_entropy(y, y_left, y_right) ≈ 0.0
 
     y_left = [1, 1, 1, 1]
     y_right = [0, 0, 0, 0]
-    @test DecisionTreeAndRandomForest.weighted_gain(y, y_left, y_right) ≈ 1.0
+    @test DecisionTreeAndRandomForest.weighted_entropy(y, y_left, y_right) ≈ 1.0
 end
 
 

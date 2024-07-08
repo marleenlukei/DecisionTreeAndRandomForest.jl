@@ -10,7 +10,7 @@ This function calculates the Gini impurity of a set of labels, which measures th
 ## Returns
 - `Float64`: The Gini impurity of the labels.
 """
-function calculate_impurity(y::AbstractVector)
+function calculate_gini(y::AbstractVector)
     label_counts = countmap(y)  
     label_probabilities = values(label_counts) ./ length(y)
     gini = 1 - sum(label_probabilities .^ 2)
@@ -30,8 +30,8 @@ This function calculates the weighted Gini impurity of a split, which is a measu
 - `Float64`: The weighted Gini impurity of the split.
 """
 function weighted_gini(y_left::T, y_right::T) where {T<:AbstractVector}
-    G_left = calculate_impurity(y_left)
-    G_right = calculate_impurity(y_right)
+    G_left = calculate_gini(y_left)
+    G_right = calculate_gini(y_right)
     p_left = length(y_left) / (length(y_left) + length(y_right))
     p_right = length(y_right) / (length(y_left) + length(y_right))
     gini_impurity = (p_left * G_left + p_right * G_right)

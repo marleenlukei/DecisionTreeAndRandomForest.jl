@@ -1,19 +1,19 @@
-@testset "calculate impurity" begin
+@testset "Calculate Gini" begin
     labels = [1, 1, 0, 1, 0, 0]
-    @test DecisionTreeAndRandomForest.calculate_impurity(labels) ≈ 0.5
+    @test DecisionTreeAndRandomForest.calculate_gini(labels) ≈ 0.5
 
     labels = [1, 1, 1, 1, 1, 1]
-    @test DecisionTreeAndRandomForest.calculate_impurity(labels) ≈ 0.0
+    @test DecisionTreeAndRandomForest.calculate_gini(labels) ≈ 0.0
 
     labels = [1, 1, 1, 1, 1, 1, 1, 1, 0, 0]  
-    @test DecisionTreeAndRandomForest.calculate_impurity(labels) ≈ 1.0 - (8/10)^2 - (2/10)^2  
+    @test DecisionTreeAndRandomForest.calculate_gini(labels) ≈ 1.0 - (8/10)^2 - (2/10)^2  
     
     labels = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]  
-    @test DecisionTreeAndRandomForest.calculate_impurity(labels) ≈ 1.0 - (4/10)^2 - (6/10)^2 
+    @test DecisionTreeAndRandomForest.calculate_gini(labels) ≈ 1.0 - (4/10)^2 - (6/10)^2 
 
 end
 
-@testset "weighted gini" begin
+@testset "Weighted Gini" begin
     left_dataset = [1, 1, 0, 0, 0]  
     right_dataset = [1, 1, 1, 0, 0]  
     @test DecisionTreeAndRandomForest.weighted_gini(left_dataset, right_dataset) ≈ 0.48

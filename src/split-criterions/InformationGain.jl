@@ -30,7 +30,7 @@ Calculate the Information Gain of a split.
 ## Returns
 - `Float64`: The Information Gain of the split.
 """
-function weighted_gain(y::T, y_left::T, y_right::T) where {T<:AbstractVector}
+function weighted_entropy(y::T, y_left::T, y_right::T) where {T<:AbstractVector}
     H = calculate_entropy(y)
     H_left = calculate_entropy(y_left)
     H_right = calculate_entropy(y_right)
@@ -71,7 +71,7 @@ function information_gain(X::AbstractMatrix, y::AbstractVector, num_features_to_
             if length(left_labels) == 0 || length(right_labels) == 0
                 continue
             end
-            gain = weighted_gain(y, left_labels, right_labels)
+            gain = weighted_entropy(y, left_labels, right_labels)
             if gain > best_gain
                 best_gain = gain
                 best_feature = feature
