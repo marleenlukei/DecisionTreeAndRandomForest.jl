@@ -210,25 +210,55 @@ end
 function Base.show(io::IO, node::Node)
     indentation = ""
     level = get(io, :level, 1)
-    for _ in 1:level
-        indentation *= "--"
+    pairs = get(io, :pairs, Dict())
+    for i in 2:level
+        if i < level
+            if pairs[i]
+                indentation *= "│   "
+            else
+                indentation *= "    "
+            end
+        else
+            if pairs[i]
+                indentation *= "├── "
+            else
+                indentation *= "└── "
+            end
+        end
     end
+    pairs_left = Dict(pairs..., level + 1 => true)
+    pairs_right = Dict(pairs..., level + 1 => false)
+    io_left = IOContext(io, :level => level + 1, :pairs => pairs_left)
+    io_right = IOContext(io, :level => level + 1, :pairs => pairs_right)
 
-    io_new = IOContext(io, :level => level + 1)
-
-    println("$indentation Feature Index: $(node.feature_index)")
-    println("$indentation Split Value: $(node.split_value)")
-    println("$indentation-- Left")
-    print(io_new, node.left)
-    println("$indentation-- Right")
-    print(io_new, node.right)
+    println("$(indentation)Feature: $(node.feature_index), Split Value: $(node.split_value)")
+    print(io_left, node.left)
+    print(io_right, node.right)
 end
 
 function Base.show(io::IO, leaf::Leaf)
     indentation = ""
     level = get(io, :level, 1)
-    for _ in 1:level
-        indentation *= "--"
+    pairs = get(io, :pairs, Dict())
+    for i in 2:level
+        if i < level
+            if pairs[i]
+                indentation *= "│   "
+            else
+                indentation *= "    "
+            end
+        else
+            if pairs[i]
+                indentation *= "├── "
+            else
+                indentation *= "└── "
+            end
+        end
     end
-    println("$indentation Labels: $(leaf.values)")
+    occs = countmap(leaf.values)
+    str = "$(indentation)Labels: "
+    for (key, value) in occs
+        str *= "$key ($value/$(length(leaf.values))) "
+    end
+    println(str)
 end
