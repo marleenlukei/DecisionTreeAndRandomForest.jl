@@ -49,6 +49,22 @@ end
     end
 end
 
+@testset "fit! - split criterion validation" begin
+    data = rand(10, 3)
+    labels = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+    tree = DecisionTree(split_variance)
+
+    @test_throws ArgumentError begin
+        fit!(tree, data, labels)
+    end
+
+    try
+        fit!(tree, data, labels)
+    catch e
+        @test occursin("The chosen split criterion does only work for classification task, please choose another one", string(e))
+    end
+end
+
 @testset "predict - exception handling" begin
     test_data = Matrix{Float64}(undef, 0, 0)
     tree = DecisionTree(split_ig) 
