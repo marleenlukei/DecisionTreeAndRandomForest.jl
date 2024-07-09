@@ -31,7 +31,7 @@ Steps for Calculation:
 
 
 ## Information Gain
-Information Gain calculated as the difference in entropy before and after splitting a dataset on an attribute. Entropy measures the uncertainty or impurity in the data. The goal is to reduce entropy and maximize information gain, leading to a more informative split. Information Gain is used in classification problems to choose the attribute that provides the highest information gain, resulting in the most informative split.
+Information Gain is calculated as the difference in entropy before and after splitting a dataset on an attribute. Entropy measures the uncertainty or impurity in the data. The goal is to reduce entropy and maximize information gain, leading to a more informative split. Information Gain is used in classification problems to choose the attribute that provides the highest information gain, resulting in the most informative split.
 
 The information gain for a dataset 𝑆 after a split on attribute 𝐴 is given by:
 
@@ -58,6 +58,8 @@ Steps for Calculation:
 3. Compute the Information Gain by subtracting the weighted entropy from the original entropy.
 5. Choose the split with the highest information gain.
 
+!!! info
+    While Gini Impurity and Information Gain are often used interchangeably for splitting nodes in decision trees, Gini Impurity tends to be favored when classes are balanced, while Information Gain might be preferred when dealing with imbalanced class distributions.
 
 ## Variance Reduction
 Variance Reduction measures the reduction in variance of the target variable achieved by splitting a node. Higher variance reduction indicates a more informative split. Variance reduction is particularly useful for regression problems where the goal is to predict a continuous target variable.
