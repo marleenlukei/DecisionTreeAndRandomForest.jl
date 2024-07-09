@@ -1,4 +1,4 @@
-@testset "Calculate Gini" begin
+@testset "calculate_gini" begin
     labels = [1, 1, 0, 1, 0, 0]
     @test DecisionTreeAndRandomForest.calculate_gini(labels) ≈ 0.5
 
@@ -13,7 +13,7 @@
 
 end
 
-@testset "Weighted Gini" begin
+@testset "weighted_gini" begin
     left_dataset = [1, 1, 0, 0, 0]  
     right_dataset = [1, 1, 1, 0, 0]  
     @test DecisionTreeAndRandomForest.weighted_gini(left_dataset, right_dataset) ≈ 0.48
@@ -24,7 +24,7 @@ end
 end
 
 
-@testset "Gini Impurity" begin  
+@testset "gini_impurity" begin  
     X = [
         "sick" "under";
         "sick" "over";
@@ -75,4 +75,36 @@ end
  
 
 
+end
+
+@testset "split_gini_numerical" begin
+    data = [
+        1 2;
+        1 2;
+        2 2;
+        2 3;
+        3 3;
+        3 3
+    ]
+    labels = ["A", "A", "B", "B", "B", "A"]
+
+    feature_index, feature_value = DecisionTreeAndRandomForest.split_gini(data, labels)
+
+    @test feature_index == 1
+    @test feature_value == 2
+end
+
+@testset "split_gini_categorical" begin
+    data = [
+        "low" "blue";
+        "low" "blue";
+        "medium" "red";
+        "high" "blue"
+    ]
+    labels = [1, 1, 2, 2]
+
+    feature_index, feature_value = DecisionTreeAndRandomForest.split_gini(data, labels)
+
+    @test feature_index == 1 
+    @test feature_value == "low"  
 end

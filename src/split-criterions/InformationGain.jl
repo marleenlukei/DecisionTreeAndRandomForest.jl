@@ -20,31 +20,29 @@ end
 """
     $(SIGNATURES)
 
-Calculate the Information Gain of a split.
+Calculates the entropy of the left and right subsets and returns the weighted sum of the two entropies.
 
 ## Arguments
-- `y::AbstractVector{T}`: The original labels vector.
 - `y_left::AbstractVector{T}`: The labels vector for the left split.
 - `y_right::AbstractVector{T}`: The labels vector for the right split.
 
 ## Returns
-- `Float64`: The Information Gain of the split.
+- `Float64`: The weighted entropy of the split.
 """
-function weighted_entropy(y::T, y_left::T, y_right::T) where {T<:AbstractVector}
-    H = calculate_entropy(y)
+function weighted_entropy(y_left::T, y_right::T) where {T<:AbstractVector}
     H_left = calculate_entropy(y_left)
     H_right = calculate_entropy(y_right)
-    p_left = length(y_left) / length(y)
-    p_right = length(y_right) / length(y)
-    return H - (p_left * H_left + p_right * H_right)
+    p_left = length(y_left) / (length(y_left) + length(y_right))
+    p_right = length(y_right) / (length(y_left) + length(y_right))
+    return (p_left * H_left + p_right * H_right)
 end
 
 
 """
     $(SIGNATURES)
 
-Find the best split for the dataset `X` and labels `y` based on Information Gain.
-Returns the best feature and threshold for the split.
+Finds the best split point for a decision tree node using information gain.
+
 
 ## Arguments
 - `X::AbstractMatrix`: A matrix of features.
@@ -59,6 +57,7 @@ function information_gain(X::AbstractMatrix, y::AbstractVector, num_features_to_
     best_gain = -Inf
     best_feature = -1
     best_threshold = -1
+    best_threshold = -1
     n_features = size(X, 2)
     features_to_use = 1:n_features
     if (num_features_to_use != -1)
@@ -71,7 +70,7 @@ function information_gain(X::AbstractMatrix, y::AbstractVector, num_features_to_
             if length(left_labels) == 0 || length(right_labels) == 0
                 continue
             end
-            gain = weighted_entropy(y, left_labels, right_labels)
+            gain = calculate_entropy(y) - weighted_entropy(left_labels, right_labels)
             if gain > best_gain
                 best_gain = gain
                 best_feature = feature

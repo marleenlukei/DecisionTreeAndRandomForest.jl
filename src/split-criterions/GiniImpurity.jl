@@ -20,30 +20,28 @@ end
 """
     $(SIGNATURES)
 
-This function calculates the weighted Gini impurity of a split, which is a measure of the impurity of the split considering the size of each subset. It's used to evaluate the quality of a split in a decision tree.
+Calculates the gini impurity of the left and right subsets and returns the weighted sum of the two impurities.
 
 ## Arguments
 - `y_left::AbstractVector{T}`: A vector of labels for the left subset of the data.
 - `y_right::AbstractVector{T}`: A vector of labels for the right subset of the data.
 
 ## Returns
-- `Float64`: The weighted Gini impurity of the split.
+- `Float64`: The weighted gini impurity of the split.
 """
 function weighted_gini(y_left::T, y_right::T) where {T<:AbstractVector}
     G_left = calculate_gini(y_left)
     G_right = calculate_gini(y_right)
     p_left = length(y_left) / (length(y_left) + length(y_right))
     p_right = length(y_right) / (length(y_left) + length(y_right))
-    gini_impurity = (p_left * G_left + p_right * G_right)
-    return gini_impurity
+    return (p_left * G_left + p_right * G_right)
 end
 
 
 """
     $(SIGNATURES)
 
-Finds the best split point for a decision tree node.
-For now it uses the Gini impurity as splitting criterion, but should later be extended to support other criteria.
+Finds the best split point for a decision tree node using gini impurity.
 
 ## Arguments
 - `X::AbstractMatrix`: A matrix of features, where each row is a data point and each column is a feature.

@@ -10,29 +10,28 @@ Calculate the sample variance of a given set of labels. It uses the standard for
 - `Float64`: The sample variance of the input label vector `y`.
 """
 function calculate_variance(y::AbstractVector)
-    variance = sum((y .- mean(y)) .^ 2) / length(y) - 1
+    variance = sum((y .- mean(y)) .^ 2) / (length(y) - 1)
     return variance
 end
 
 """
     $(SIGNATURES)
 
-Calculates the variance reduction achieved by a split.
+Calculates the variance of the left and right subsets and returns the weighted sum of the two variances.
 
 ## Arguments
 - `y_left::AbstractVector{T}`: A vector of labels for the left subset of the data.
 - `y_right::AbstractVector{T}`: A vector of labels for the right subset of the data.
 
 ## Returns
-- `Float64`: The variance reduction achieved by the split.
+- `Float64`: The weighted variance of the split
 """
 function weighted_variance(y_left::T, y_right::T) where {T<:AbstractVector}
     V_left = calculate_variance(y_left)
     V_right = calculate_variance(y_right)
     p_left = length(y_left) / (length(y_left) + length(y_right))
     p_right = length(y_right) / (length(y_left) + length(y_right))
-    variance_reduction = (p_left * V_left + p_right * V_right)
-    return variance_reduction
+    return (p_left * V_left + p_right * V_right)
 end
 
 
