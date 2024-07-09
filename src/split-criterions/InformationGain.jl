@@ -45,18 +45,24 @@ Split the dataset `X` and labels `y` based on a `feature` and a `threshold`.
 Returns the left and right splits for both `X` and `y`.
 
 ## Arguments
-- `X::AbstractMatrix`: A matrix of features.
+- `X::AbstractMatrix{T}`: A matrix of features.
 - `y::AbstractVector`: A vector of labels.
 - `feature::Int`: The index of the feature to split on.
-- `threshold::Real`: The threshold value to split the feature.
+- `threshold::T`: The threshold value to split the feature.
 
 ## Returns
 - `X_left::AbstractMatrix`, `y_left::AbstractVector`: The left split of the dataset and labels.
 - `X_right::AbstractMatrix`, `y_right::AbstractVector`: The right split of the dataset and labels.
 """
-function split_dataset(X::AbstractMatrix, y::AbstractVector, feature::Int, threshold::Real)
-    left_indices = findall(x -> x[feature] <= threshold, eachrow(X))
-    right_indices = findall(x -> x[feature] > threshold, eachrow(X))
+function split_dataset(X::AbstractMatrix{T}, y::AbstractVector, feature::Int, threshold::T) where {T}
+    if eltype(identity.(threshold)) <: Number
+        left_indices = findall(x -> x[feature] < threshold, eachrow(X))
+        right_indices = findall(x -> x[feature] >= threshold, eachrow(X))
+    else
+        left_indices = findall(x -> x[feature] != threshold, eachrow(X))
+        right_indices = findall(x -> x[feature] == threshold, eachrow(X))
+    end
+
     X_left = X[left_indices, :]
     y_left = y[left_indices]
     X_right = X[right_indices, :]
@@ -82,7 +88,7 @@ Returns the best feature and threshold for the split.
 function best_split(X::AbstractMatrix, y::AbstractVector, num_features_to_use::Int=-1)
     best_gain = -Inf
     best_feature = -1
-    best_threshold = 0.0
+    best_threshold = -1
     n_features = size(X, 2)
     features_to_use = 1:n_features
     if (num_features_to_use != -1)

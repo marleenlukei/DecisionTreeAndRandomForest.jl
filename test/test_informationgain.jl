@@ -1,12 +1,12 @@
 # Test cases for entropy
-@testset "Entropy" begin
+@testset "entropy" begin
     @test DecisionTreeAndRandomForest.entropy([1, 1, 1, 1]) == 0
     @test DecisionTreeAndRandomForest.entropy([1, 0, 1, 0]) ≈ 1
     @test DecisionTreeAndRandomForest.entropy([1, 1, 0, 0, 0, 1, 1, 0]) ≈ 1
 end
 
 # Test cases for information_gain
-@testset "Information Gain" begin
+@testset "information_gain" begin
     y = [1, 1, 0, 0, 0, 1, 1, 0]
     y_left = [1, 1, 0, 0]
     y_right = [0, 1, 1, 0]
@@ -18,7 +18,7 @@ end
 end
 
 # Test cases for split_dataset
-@testset "Split Dataset" begin
+@testset "split_dataset" begin
     X = [1.0 2.0; 3.0 4.0; 1.5 0.5; 3.5 3.5]
     y = [0, 1, 0, 1]
     X_left_expected = [1.0 2.0; 1.5 0.5]
@@ -34,12 +34,25 @@ end
 end
 
 # Test cases for best_split
-@testset "Best Split" begin
- 
-
+@testset "best_split" begin
     X = [1.0 2.0; 3.0 4.0; 2.5 0.5; 4.0 3.0]
     y = [0, 1, 0, 1]
     best_feature, best_threshold = DecisionTreeAndRandomForest.best_split(X, y)
     @test best_feature == 1
-    @test best_threshold == 2.5
+    @test best_threshold == 3.0
+end
+
+@testset "split_ig_categorical" begin
+    data = [
+        "low" "blue";
+        "low" "blue";
+        "medium" "red";
+        "high" "blue"
+    ]
+    labels = [1, 1, 2, 2]
+
+    feature_index, feature_value = DecisionTreeAndRandomForest.split_ig(data, labels)
+
+    @test feature_index == 1 
+    @test feature_value == "low"  
 end
