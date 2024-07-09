@@ -11,7 +11,6 @@ using DataFrames
     test_data = Matrix(X[test, :])
     forest = RandomForest(5, 4, split_gini, 20, 0.8, 3)
     fit!(forest, train_data, train_labels)
-    print(forest)
     predictions = predict(forest, test_data)
     accuracy = sum(predictions .== test_labels) / length(test_labels)
     
@@ -71,7 +70,6 @@ end
     ss_res = sum((test_labels .- predictions) .^ 2)
     ss_tot = sum((test_labels .- mean(test_labels)) .^ 2)
     r2_score = 1 - (ss_res / ss_tot)
-    println("R² Score: ", r2_score)
 
     @test r2_score >= 0.70
 
@@ -91,11 +89,9 @@ end
     fit!(forest, train_data, train_labels)  
     predictions = predict(forest, test_data)
     mse = mean((predictions .- test_labels) .^ 2)
-    println("Mean Squared Error: ", mse)
     ss_res = sum((test_labels .- predictions) .^ 2)
     ss_tot = sum((test_labels .- mean(test_labels)) .^ 2)
     r2_score = 1 - (ss_res / ss_tot)
-    println("R² Score: ", r2_score)
 
     @test mse <= 10.0
     @test r2_score >= 0.75

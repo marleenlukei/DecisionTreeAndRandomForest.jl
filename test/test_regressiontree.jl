@@ -14,8 +14,7 @@
 
     test_data = [12 1 2002 "Standard"; 40 2 2020 "Luxury"]
     prediction = predict(tree, test_data)
-    print(tree)
-    print(prediction)
+    
     @test 600 <= prediction[1] <= 700
     @test 2000 <= prediction[2] <= 2500
 
@@ -38,7 +37,7 @@
     ss_res = sum((test_labels .- predictions) .^ 2)
     ss_tot = sum((test_labels .- mean(test_labels)) .^ 2)
     r2_score = 1 - (ss_res / ss_tot)
-    println("R² Score: ", r2_score)
+    
 
     @test r2_score >= 0.70
 end

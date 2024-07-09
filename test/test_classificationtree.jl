@@ -10,7 +10,6 @@
 
     test_data = ["dog" 38.0; "human" 38.0]
     prediction = predict(tree, test_data)
-    print(tree)
     @test prediction[1] == "healthy"
     @test prediction[2] == "sick"
 
@@ -27,7 +26,6 @@
     tree = DecisionTree(split_gini)
     fit!(tree, train_data, train_labels)
     predictions = predict(tree, test_data)
-    print(tree)
 
     accuracy = sum(predictions .== test_labels) / length(test_labels)
     
@@ -73,7 +71,6 @@ end
         fit!(tree, test_data, labels)
         test_data = [1 2]
         prediction = predict(tree, test_data)
-        print(tree)
     
         @test prediction[1] == "1"
     end
@@ -89,7 +86,6 @@ end
     
         tree = DecisionTree(-1, 1, -1, dummy_split_criterion)
         fit!(tree, data_empty_subtree, labels_empty_subtree)
-        print(tree)
     
         # Check if the root is a Leaf due to empty subtree
         @test isa(tree.root, DecisionTreeAndRandomForest.Leaf)
