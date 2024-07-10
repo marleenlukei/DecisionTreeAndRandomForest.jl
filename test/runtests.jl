@@ -4,6 +4,7 @@ using MLJ: load_iris, unpack, partition
 using DataFrames: DataFrame
 using RDatasets: dataset
 using StatsBase: mean
+using Suppressor: @capture_out
 
 @testset "DecisionTreeAndRandomForest.jl" begin
     include("test_informationgain.jl")

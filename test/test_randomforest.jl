@@ -13,13 +13,13 @@ using DataFrames
     fit!(forest, train_data, train_labels)
     predictions = predict(forest, test_data)
     accuracy = sum(predictions .== test_labels) / length(test_labels)
-    
+
     @test Set(predictions) <= Set(test_labels)
     @test accuracy >= 0.90
-    
+
     data = dataset("MASS", "biopsy")
-    data = dropmissing(data)  
-    X = data[:, 2:end-1]  
+    data = dropmissing(data)
+    X = data[:, 2:end-1]
     y = data[:, end]
     train_indices, test_indices = partition(eachindex(y), 0.7, rng=123)
     train_labels = Vector{String}(y[train_indices])
@@ -27,10 +27,10 @@ using DataFrames
     train_data = Matrix(X[train_indices, :])
     test_data = Matrix(X[test_indices, :])
     forest = RandomForest(split_ig, 10)
-    fit!(forest, train_data, train_labels)  
-    predictions = predict(forest, test_data)  
+    fit!(forest, train_data, train_labels)
+    predictions = predict(forest, test_data)
     accuracy = sum(predictions .== test_labels) / length(test_labels)
-    
+
 
     @test Set(predictions) <= Set(test_labels)
     @test accuracy >= 0.90
@@ -65,7 +65,7 @@ end
     train_labels = labels[train_indices]
     test_labels = labels[test_indices]
     forest = RandomForest(split_variance, 20, 0.8, 6)
-    fit!(forest, train_data, train_labels)  
+    fit!(forest, train_data, train_labels)
     predictions = predict(forest, test_data)
     ss_res = sum((test_labels .- predictions) .^ 2)
     ss_tot = sum((test_labels .- mean(test_labels)) .^ 2)
@@ -86,7 +86,7 @@ end
     train_data = Matrix(X[train_indices, :])
     test_data = Matrix(X[test_indices, :])
     forest = RandomForest(split_ig, 10, 0.9, 10)
-    fit!(forest, train_data, train_labels)  
+    fit!(forest, train_data, train_labels)
     predictions = predict(forest, test_data)
     mse = mean((predictions .- test_labels) .^ 2)
     ss_res = sum((test_labels .- predictions) .^ 2)
@@ -96,4 +96,19 @@ end
     @test mse <= 10.0
     @test r2_score >= 0.75
 
+end
+
+@testset "print RandomForest" begin
+    forest = RandomForest(split_gini, 3)
+
+    data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
+    labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
+
+    fit!(forest, data, labels)
+
+    result = @capture_out print(forest)
+    @test occursin("Tree 1", result)
+    @test occursin("Tree 2", result)
+    @test occursin("Tree 3", result)
+    @test !occursin("Tree 4", result)
 end
