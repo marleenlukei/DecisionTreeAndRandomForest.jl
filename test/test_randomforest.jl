@@ -35,3 +35,18 @@ end
     @test 500 <= predictions[1] <= 1200
     @test 1500 <= predictions[2] <= 2500
 end
+
+@testset "print RandomForest" begin
+    forest = RandomForest(split_gini, 3)
+
+    data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
+    labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
+
+    fit!(forest, data, labels)
+
+    result = @capture_out print(forest)
+    @test occursin("Tree 1", result)
+    @test occursin("Tree 2", result)
+    @test occursin("Tree 3", result)
+    @test !occursin("Tree 4", result)
+end

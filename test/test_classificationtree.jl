@@ -34,3 +34,26 @@
     @test Set(predictions) <= Set(test_labels)
     @test accuracy >= 0.90
 end
+
+@testset "print DecisionTree" begin
+    tree = DecisionTree(split_gini)
+
+    data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
+    labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
+
+    fit!(tree, data, labels)
+
+    result = @capture_out print(tree)
+    expected = """Feature: 2, Split Value: 37.4
+   ├── Labels: healthy (3/3) 
+   └── Feature: 1, Split Value: dog
+       ├── Labels: sick (2/2) 
+       └── Feature: 2, Split Value: 40.2
+           ├── Labels: healthy (2/2) 
+           └── Labels: sick (1/1) """
+    @test chomp(result) == chomp(expected)
+
+    emptytree = DecisionTree(split_gini)
+    result = @capture_out print(emptytree)
+    @test chomp(result) == "missing"
+end
