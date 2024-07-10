@@ -36,4 +36,5 @@ add https://github.com/marleenlukei/DecisionTreeAndRandomForest.jl
 For further details and examples, please refer to the [docs](https://marleenlukei.github.io/DecisionTreeAndRandomForest.jl/).
 
 ## Contributing
-We welcome contributions from the community. If you would like to contribute to the project, please refer to the [CONTRIBUTING.md] file for more information.
+We welcome contributions from the community. If you encounter any bugs or have suggestions for improvements, please open an issue on our issues page.
+You can also make changes to the project: start by forking the repository, create a new branch, make your changes and submit a pull request.
