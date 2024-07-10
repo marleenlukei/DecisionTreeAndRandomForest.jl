@@ -12,7 +12,8 @@ using Suppressor: @capture_out
     include("test_classificationtree.jl")
     include("test_randomforest.jl")
     include("test_regressiontree.jl")
-    include("test_splittingcriterionutils.jl")
+    include("test_variancereduction.jl")
+    include("test_utils.jl")
 end
 
 

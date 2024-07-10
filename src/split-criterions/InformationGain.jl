@@ -10,65 +10,39 @@ Calculates the entropy of a vector of labels `y`.
 ## Returns
 - `Float64`: The entropy of the vector.
 """
-function entropy(y::AbstractVector)
-    counts = countmap(y)
-    probs = values(counts) ./ length(y)
-    return -sum(p -> p > 0 ? p * log2(p) : 0, probs)
+function calculate_entropy(y::AbstractVector)
+    label_counts = countmap(y)
+    probs = values(label_counts) ./ length(y)
+    entropy = -sum(p -> p > 0 ? p * log2(p) : 0, probs)
+    return entropy
 end
 
 """
     $(SIGNATURES)
 
-Calculate the Information Gain of a split.
+Calculates the entropy of the left and right subsets and returns the weighted sum of the two entropies.
 
 ## Arguments
-- `y::AbstractVector{T}`: The original labels vector.
 - `y_left::AbstractVector{T}`: The labels vector for the left split.
 - `y_right::AbstractVector{T}`: The labels vector for the right split.
 
 ## Returns
-- `Float64`: The Information Gain of the split.
+- `Float64`: The weighted entropy of the split.
 """
-function information_gain(y::T, y_left::T, y_right::T) where {T<:AbstractVector}
-    H = entropy(y)
-    H_left = entropy(y_left)
-    H_right = entropy(y_right)
-    p_left = length(y_left) / length(y)
-    p_right = length(y_right) / length(y)
-    return H - (p_left * H_left + p_right * H_right)
+function weighted_entropy(y_left::T, y_right::T) where {T<:AbstractVector}
+    H_left = calculate_entropy(y_left)
+    H_right = calculate_entropy(y_right)
+    p_left = length(y_left) / (length(y_left) + length(y_right))
+    p_right = length(y_right) / (length(y_left) + length(y_right))
+    return (p_left * H_left + p_right * H_right)
 end
+
 
 """
     $(SIGNATURES)
 
-Split the dataset `X` and labels `y` based on a `feature` and a `threshold`.
-Returns the left and right splits for both `X` and `y`.
+Finds the best split point for a decision tree node using information gain.
 
-## Arguments
-- `X::AbstractMatrix`: A matrix of features.
-- `y::AbstractVector`: A vector of labels.
-- `feature::Int`: The index of the feature to split on.
-- `threshold::Real`: The threshold value to split the feature.
-
-## Returns
-- `X_left::AbstractMatrix`, `y_left::AbstractVector`: The left split of the dataset and labels.
-- `X_right::AbstractMatrix`, `y_right::AbstractVector`: The right split of the dataset and labels.
-"""
-function split_dataset(X::AbstractMatrix, y::AbstractVector, feature::Int, threshold::Real)
-    left_indices = findall(x -> x[feature] <= threshold, eachrow(X))
-    right_indices = findall(x -> x[feature] > threshold, eachrow(X))
-    X_left = X[left_indices, :]
-    y_left = y[left_indices]
-    X_right = X[right_indices, :]
-    y_right = y[right_indices]
-    return X_left, y_left, X_right, y_right
-end
-
-"""
-    $(SIGNATURES)
-
-Find the best split for the dataset `X` and labels `y` based on Information Gain.
-Returns the best feature and threshold for the split.
 
 ## Arguments
 - `X::AbstractMatrix`: A matrix of features.
@@ -79,10 +53,11 @@ Returns the best feature and threshold for the split.
 - `best_feature::Int`: The index of the best feature to split on.
 - `best_threshold::Real`: The threshold value for the best split.
 """
-function best_split(X::AbstractMatrix, y::AbstractVector, num_features_to_use::Int=-1)
+function information_gain(X::AbstractMatrix, y::AbstractVector, num_features_to_use::Int=-1)
     best_gain = -Inf
     best_feature = -1
-    best_threshold = 0.0
+    best_threshold = -1
+    best_threshold = -1
     n_features = size(X, 2)
     features_to_use = 1:n_features
     if (num_features_to_use != -1)
@@ -91,11 +66,11 @@ function best_split(X::AbstractMatrix, y::AbstractVector, num_features_to_use::I
     for feature in features_to_use
         thresholds = unique(X[:, feature])
         for threshold in thresholds
-            X_left, y_left, X_right, y_right = split_dataset(X, y, feature, threshold)
-            if length(y_left) == 0 || length(y_right) == 0
+            left_labels, right_labels = split_node(X, y, feature, threshold)
+            if length(left_labels) == 0 || length(right_labels) == 0
                 continue
             end
-            gain = information_gain(y, y_left, y_right)
+            gain = calculate_entropy(y) - weighted_entropy(left_labels, right_labels)
             if gain > best_gain
                 best_gain = gain
                 best_feature = feature
@@ -120,5 +95,5 @@ This function is a wrapper for `best_split` to be used as the split criterion in
 - `Tuple{Int, Real}`: A tuple containing the index of the best feature and the best split value.
 """
 function split_ig(data::AbstractMatrix, labels::AbstractVector, num_features::Int=-1)
-    return best_split(data, labels, num_features)
+    return information_gain(data, labels, num_features)
 end

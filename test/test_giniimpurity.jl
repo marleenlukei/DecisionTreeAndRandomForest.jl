@@ -1,15 +1,15 @@
-@testset "gini_impurity" begin
+@testset "calculate_gini" begin
     labels = [1, 1, 0, 1, 0, 0]
-    @test DecisionTreeAndRandomForest.gini_impurity(labels) ≈ 0.5
+    @test DecisionTreeAndRandomForest.calculate_gini(labels) ≈ 0.5
 
     labels = [1, 1, 1, 1, 1, 1]
-    @test DecisionTreeAndRandomForest.gini_impurity(labels) ≈ 0.0
+    @test DecisionTreeAndRandomForest.calculate_gini(labels) ≈ 0.0
 
     labels = [1, 1, 1, 1, 1, 1, 1, 1, 0, 0]  
-    @test DecisionTreeAndRandomForest.gini_impurity(labels) ≈ 1.0 - (8/10)^2 - (2/10)^2  
+    @test DecisionTreeAndRandomForest.calculate_gini(labels) ≈ 1.0 - (8/10)^2 - (2/10)^2  
     
     labels = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]  
-    @test DecisionTreeAndRandomForest.gini_impurity(labels) ≈ 1.0 - (4/10)^2 - (6/10)^2 
+    @test DecisionTreeAndRandomForest.calculate_gini(labels) ≈ 1.0 - (4/10)^2 - (6/10)^2 
 
 end
 
@@ -24,7 +24,7 @@ end
 end
 
 
-@testset "find_best_split" begin  
+@testset "gini_impurity" begin  
     X = [
         "sick" "under";
         "sick" "over";
@@ -36,7 +36,7 @@ end
         "notsick" "over"
     ]
     Y = ['N', 'Y', 'Y', 'N', 'Y', 'N', 'N', 'Y']  
-    feature_index, feature_value = DecisionTreeAndRandomForest.find_best_split(X, Y)  
+    feature_index, feature_value = DecisionTreeAndRandomForest.gini_impurity(X, Y)  
     @test feature_index == 2  
     
     X = ["tech" "professional";
@@ -47,7 +47,7 @@ end
                 "tech" "retired";
                 "sports" "professional"]
     Y = [1, 1, 1, 0, 0, 1, 0] 
-    feature_index, feature_value = DecisionTreeAndRandomForest.find_best_split(X, Y)
+    feature_index, feature_value = DecisionTreeAndRandomForest.gini_impurity(X, Y)
     @test feature_index == 1
     @test feature_value == "sports"
 
@@ -69,10 +69,42 @@ end
         ]
 
     Y = ["no", "no", "yes", "yes", "yes", "no", "yes", "no", "yes", "yes", "yes", "yes", "yes", "no"]
-    feature_index, feature_value = DecisionTreeAndRandomForest.find_best_split(X, Y) 
+    feature_index, feature_value = DecisionTreeAndRandomForest.gini_impurity(X, Y) 
     @test feature_index == 1  
     @test feature_value == "middle_age"
  
 
 
+end
+
+@testset "split_gini_numerical" begin
+    data = [
+        1 2;
+        1 2;
+        2 2;
+        2 3;
+        3 3;
+        3 3
+    ]
+    labels = ["A", "A", "B", "B", "B", "A"]
+
+    feature_index, feature_value = DecisionTreeAndRandomForest.split_gini(data, labels)
+
+    @test feature_index == 1
+    @test feature_value == 2
+end
+
+@testset "split_gini_categorical" begin
+    data = [
+        "low" "blue";
+        "low" "blue";
+        "medium" "red";
+        "high" "blue"
+    ]
+    labels = [1, 1, 2, 2]
+
+    feature_index, feature_value = DecisionTreeAndRandomForest.split_gini(data, labels)
+
+    @test feature_index == 1 
+    @test feature_value == "low"  
 end

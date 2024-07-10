@@ -9,58 +9,31 @@ Calculate the sample variance of a given set of labels. It uses the standard for
 ## Returns
 - `Float64`: The sample variance of the input label vector `y`.
 """
-function variance(y::AbstractVector)
-    variance = sum((y .- mean(y)) .^ 2) / length(y) - 1
+function calculate_variance(y::AbstractVector)
+    variance = sum((y .- mean(y)) .^ 2) / (length(y) - 1)
     return variance
 end
 
 """
     $(SIGNATURES)
 
-Calculates the variance reduction achieved by a split.
+Calculates the variance of the left and right subsets and returns the weighted sum of the two variances.
 
 ## Arguments
-- `left_dataset::AbstractVector{T}`: A vector of labels for the left subset of the data.
-- `right_dataset::AbstractVector{T}`: A vector of labels for the right subset of the data.
+- `y_left::AbstractVector{T}`: A vector of labels for the left subset of the data.
+- `y_right::AbstractVector{T}`: A vector of labels for the right subset of the data.
 
 ## Returns
-- `Float64`: The variance reduction achieved by the split.
+- `Float64`: The weighted variance of the split
 """
-function variance_reduction(left_dataset::T, right_dataset::T) where {T<:AbstractVector}
-    number_of_left_rows = length(left_dataset)
-    number_of_right_rows = length(right_dataset)
-    total = number_of_left_rows + number_of_right_rows
-    variance_reduction = ((number_of_left_rows / total) * variance(left_dataset) + (number_of_right_rows / total) * variance(right_dataset))
-    return variance_reduction
+function weighted_variance(y_left::T, y_right::T) where {T<:AbstractVector}
+    V_left = calculate_variance(y_left)
+    V_right = calculate_variance(y_right)
+    p_left = length(y_left) / (length(y_left) + length(y_right))
+    p_right = length(y_right) / (length(y_left) + length(y_right))
+    return (p_left * V_left + p_right * V_right)
 end
 
-"""
-    $(SIGNATURES)
-
-Splits the labels into two nodes based on the provided feature and value.
-
-## Arguments
-- `data::AbstractMatrix{T}`: A matrix of features, where each row is a data point and each column is a feature.
-- `labels::AbstractVector`: A vector of labels corresponding to the data points.
-- `index::Int`: The index of the feature to split on.
-- `value::T`: The value to split the feature on.
-
-## Returns
-- `Tuple{AbstractVector, AbstractVector}`: A tuple containing the left and right sets of labels.
-  """
-function split_node_vr(data::AbstractMatrix{T}, labels::AbstractVector, index::Int, value::T) where {T}
-    x_index = data[:, index]
-    # if feature is numerical
-    if eltype(identity.(x_index)) <: Number
-        mask = x_index .>= value
-        # if feature is categorical
-    else
-        mask = x_index .== value
-    end
-    left = (labels[.!mask])
-    right = (labels[mask])
-    return left, right
-end
 
 """
     $(SIGNATURES)
@@ -68,55 +41,55 @@ end
 Finds the best split point for a decision tree node using variance reduction.
 
 ## Arguments
-- `data::AbstractMatrix`: A matrix of features, where each row is a data point and each column is a feature.
-- `labels::AbstractVector`: A vector of labels corresponding to the data points.
+- `X::AbstractMatrix`: A matrix of features, where each row is a data point and each column is a feature.
+- `y::AbstractVector`: A vector of labels corresponding to the data points.
 - `num_features_to_use::Int=-1`: The number of features to consider for each split. If -1, all features are used.
 
 ## Returns
 - `Tuple{Int, Any}`: A tuple containing the index of the best feature and the best split value.
 """
-function find_best_split_vr(data::AbstractMatrix, labels::AbstractVector, num_features_to_use::Int=-1)
-    best_feature_index = -1
-    best_threshold = -1
+function variance_reduction(X::AbstractMatrix, y::AbstractVector, num_features_to_use::Int=-1)
     best_variance = -Inf
-    num_features = size(data, 2)
-    features_to_use = 1:num_features
+    best_feature = -1
+    best_threshold = -1
+    n_features = size(X, 2)
+    features_to_use = 1:n_features
     if (num_features_to_use != -1)
-        features_to_use = sample(1:num_features, num_features_to_use, replace=false)
+        features_to_use = sample(1:n_features, num_features_to_use, replace=false)
     end
 
     for feature in features_to_use
-        thresholds = unique(data[:, feature])
+        thresholds = unique(X[:, feature])
         for threshold in thresholds
-            left_labels, right_labels = split_node_vr(data, labels, feature, threshold)
+            left_labels, right_labels = split_node(X, y, feature, threshold)
             if length(left_labels) == 0 || length(right_labels) == 0
                 continue
             end
 
-            current_variance = variance(labels) - variance_reduction(left_labels, right_labels)
+            variance = calculate_variance(y) - weighted_variance(left_labels, right_labels)
 
-            if current_variance > best_variance
-                best_variance = current_variance
-                best_feature_index = feature
+            if variance > best_variance
+                best_variance = variance
+                best_feature = feature
                 best_threshold = threshold
             end
         end
     end
 
-    return best_feature_index, best_threshold
+    return best_feature, best_threshold
 end
 
 """
 This function is a wrapper for `find_best_split_vr` to be used as the split criterion in the `build_tree` function.
 
 ## Arguments
-- `data::AbstractMatrix`: A matrix of features, where each row is a data point and each column is a feature.
-- `labels::AbstractVector`: A vector of labels corresponding to the data points.
+- `X::AbstractMatrix`: A matrix of features, where each row is a data point and each column is a feature.
+- `y::AbstractVector`: A vector of labels corresponding to the data points.
 - `num_features::Int`: The number of features to consider for each split.
 
 ## Returns
 - `Tuple{Int, T}`: A tuple containing the index of the best feature and the best split value.
 """
-function split_variance(data::AbstractMatrix, labels::AbstractVector, num_features::Int=-1)
-    return find_best_split_vr(data, labels, num_features)
+function split_variance(X::AbstractMatrix, y::AbstractVector, num_features::Int=-1)
+    return variance_reduction(X, y, num_features)
 end
