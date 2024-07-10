@@ -110,21 +110,31 @@ end
 end
 
 @testset "print DecisionTree" begin
+    data = load_iris()
+    iris = DataFrame(data)
+    y, X = unpack(iris, ==(:target); rng=123)
+    train, test = partition(eachindex(y), 0.7)
+    train_labels = Vector{String}(y[train])
+    test_labels = Vector{String}(y[test])
+    train_data = Matrix(X[train, :])
+    test_data = Matrix(X[test, :])
+
     tree = DecisionTree(split_gini)
-
-    data = ["dog" 37.0; "dog" 38.4; "dog" 40.2; "dog" 38.9; "human" 36.2; "human" 37.4; "human" 38.8; "human" 36.2]
-    labels = ["healthy", "healthy", "sick", "healthy", "healthy", "sick", "sick", "healthy"]
-
-    fit!(tree, data, labels)
+    fit!(tree, train_data, train_labels)
 
     result = @capture_out print(tree)
-    expected = """Feature: 2, Split Value: 37.4
-   ├── Labels: healthy (3/3) 
-   └── Feature: 1, Split Value: dog
-       ├── Labels: sick (2/2) 
-       └── Feature: 2, Split Value: 40.2
-           ├── Labels: healthy (2/2) 
-           └── Labels: sick (1/1) """
+    print(tree)
+    expected = """Feature: 3, Split Value: 3.0
+├── Labels: setosa (35/35) 
+└── Feature: 4, Split Value: 1.7
+    ├── Feature: 3, Split Value: 5.0
+    │   ├── Labels: versicolor (35/35) 
+    │   └── Feature: 1, Split Value: 6.3
+    │       ├── Feature: 2, Split Value: 2.7
+    │       │   ├── Labels: virginica (1/1) 
+    │       │   └── Labels: versicolor (1/1) 
+    │       └── Labels: virginica (2/2) 
+    └── Labels: virginica (31/31) """
     @test chomp(result) == chomp(expected)
 
     emptytree = DecisionTree(split_gini)
