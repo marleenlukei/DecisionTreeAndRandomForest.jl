@@ -5,7 +5,7 @@ DocMeta.setdocmeta!(DecisionTreeAndRandomForest, :DocTestSetup, :(using Decision
 
 makedocs(
     modules=[DecisionTreeAndRandomForest],
-    authors="Marleen Lukei <marleen.lukei@campus.tu-berlin.de>, Cedric Lenßen <c.lenssen@campus.tu-berlin.de>, Arkadeep Dutta, Enea Gurra",
+    authors="Marleen Lukei <marleen.lukei@campus.tu-berlin.de>, Cedric Lenßen <c.lenssen@campus.tu-berlin.de>, Arkadeep Dutta <arkadeep.dutta@campus.tu-berlin.de>, Enea Gurra <e.gurra@campus.tu-berlin.de>",
     sitename="DecisionTreeAndRandomForest.jl",
     format=Documenter.HTML(;
         canonical="https://marleenlukei.github.io/DecisionTreeAndRandomForest.jl",
