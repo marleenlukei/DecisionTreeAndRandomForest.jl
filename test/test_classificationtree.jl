@@ -123,7 +123,6 @@ end
     fit!(tree, train_data, train_labels)
 
     result = @capture_out print(tree)
-    print(tree)
     expected = """Feature: 3, Split Value: 3.0
 ├── Labels: setosa (35/35) 
 └── Feature: 4, Split Value: 1.7
