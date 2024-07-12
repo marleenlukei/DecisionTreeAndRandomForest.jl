@@ -157,6 +157,10 @@ This function traverses the tree structure of the `DecisionTree` for each datapo
 """
 function predict(tree::DecisionTree, data::AbstractMatrix)
 
+    if isa(tree.root, Missing)
+        throw(UndefVarError("The tree needs to be fitted first!"))
+    end
+
     return [predict_single(tree, sample) for sample in eachrow(data)]
 end
 
