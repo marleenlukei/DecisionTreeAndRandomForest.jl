@@ -157,36 +157,48 @@ This function traverses the tree structure of the `DecisionTree` for each datapo
 """
 function predict(tree::DecisionTree, data::AbstractMatrix)
 
+    return [predict_single(tree, sample) for sample in eachrow(data)]
+end
+
+"""
+    $(SIGNATURES)
+
+This function traverses the tree structure of the `DecisionTree` for the datapoint in `sample`. It follows the decision rules based on the split criteria and feature values. If the leaf node contains numerical values, its treated as a regreesion problem and the prediction is the average of those values. If a leaf node contains numerical values, it is treated as a regression problem, and the prediction is the average of those values. If the leaf node contains categorical labels, it is treated as a classification problem, and the prediction is the most frequent label (mode) among the labels in the leaf node.
+
+## Arguments
+- `tree::DecisionTree`: The trained DecisionTree.
+- `sample::AbstractVector`: The sample to predict.
+
+## Returns
+- `Vector`: A vector of predictions for each datapoint in `data`.
+"""
+function predict_single(tree::DecisionTree, sample::AbstractVector)
+
     if isa(tree.root, Missing)
         throw(UndefVarError("The tree needs to be fitted first!"))
     end
 
-    predictions = []
-
-    for sample in eachrow(data)
-        node = tree.root
-        while !isa(node, Leaf)
-            if isa(node.split_value, Number)
-                if sample[node.feature_index] < node.split_value
-                    node = node.left
-                else
-                    node = node.right
-                end
+    node = tree.root
+    while !isa(node, Leaf)
+        if isa(node.split_value, Number)
+            if sample[node.feature_index] < node.split_value
+                node = node.left
             else
-                if sample[node.feature_index] != node.split_value
-                    node = node.left
-                else
-                    node = node.right
-                end
+                node = node.right
+            end
+        else
+            if sample[node.feature_index] != node.split_value
+                node = node.left
+            else
+                node = node.right
             end
         end
-        if all(isa.(node.values, Number))
-            push!(predictions, mean(node.values))
-        else
-            push!(predictions, mode(node.values))
-        end
     end
-    return predictions
+    if all(isa.(node.values, Number))
+        return mean(node.values)
+    else
+        return mode(node.values)
+    end
 end
 
 """
