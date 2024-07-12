@@ -35,7 +35,7 @@ using DataFrames
     @test Set(predictions) <= Set(test_labels)
     @test accuracy >= 0.90
 
-    forest = RandomForest(split_ig)
+    forest = RandomForest(5, 4, split_ig, 20, 0.8, 3)
     fit!(forest, train_data, train_labels)
     predictions = predict(forest, test_data)
     accuracy = sum(predictions .== test_labels) / length(test_labels)
