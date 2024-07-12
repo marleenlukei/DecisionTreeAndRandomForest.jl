@@ -85,7 +85,7 @@ end
     test_labels = Vector{Float64}(y[test_indices])
     train_data = Matrix(X[train_indices, :])
     test_data = Matrix(X[test_indices, :])
-    forest = RandomForest(split_ig, 10, 0.9, 10)
+    forest = RandomForest(split_variance, 10, 0.9, 10)
     fit!(forest, train_data, train_labels)
     predictions = predict(forest, test_data)
     mse = mean((predictions .- test_labels) .^ 2)

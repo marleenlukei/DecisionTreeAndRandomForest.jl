@@ -76,7 +76,8 @@ function predict(forest::RandomForest, data::AbstractMatrix)
         labels[index, :] = labels_for_tree
     end
     # Calculate the mode of every sample
-    is_regression = eltype(identity.(labels)) <: Number
+    is_regression = (forest.split_criterion in get_split_criterions() && forest.split_criterion in get_split_criterions("regression")) ||
+                    (!(forest.split_criterion in get_split_criterions()) && eltype(identity.(labels)) <: Number)
     if is_regression
         return [mean(col) for col in eachcol(labels)]
     else
