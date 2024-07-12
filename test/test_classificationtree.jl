@@ -72,6 +72,10 @@ end
         predict(tree, test_data)
     end
 
+    @test_throws MethodError begin
+        DecisionTreeAndRandomForest.predict_single(tree, test_data)
+    end
+
     try
         predict(tree, test_data)
     catch e
