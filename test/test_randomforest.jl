@@ -34,6 +34,15 @@ using DataFrames
 
     @test Set(predictions) <= Set(test_labels)
     @test accuracy >= 0.90
+
+    forest = RandomForest(5, 4, split_ig, 20, 0.8, 3)
+    fit!(forest, train_data, train_labels)
+    predictions = predict(forest, test_data)
+    accuracy = sum(predictions .== test_labels) / length(test_labels)
+
+
+    @test Set(predictions) <= Set(test_labels)
+    @test accuracy >= 0.90
 end
 
 @testset "RandomRegressionForest" begin
@@ -85,7 +94,7 @@ end
     test_labels = Vector{Float64}(y[test_indices])
     train_data = Matrix(X[train_indices, :])
     test_data = Matrix(X[test_indices, :])
-    forest = RandomForest(split_ig, 10, 0.9, 10)
+    forest = RandomForest(split_variance, 10, 0.9, 10)
     fit!(forest, train_data, train_labels)
     predictions = predict(forest, test_data)
     mse = mean((predictions .- test_labels) .^ 2)

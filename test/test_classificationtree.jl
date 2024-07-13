@@ -79,6 +79,21 @@ end
     end
 end
 
+@testset "predict_single - exception handling" begin
+    test_data = [0, 0]
+    tree = DecisionTree(split_ig)
+
+    @test_throws MethodError begin
+        DecisionTreeAndRandomForest.predict_single(tree, test_data)
+    end
+
+    try
+        DecisionTreeAndRandomForest.predict_single(tree, test_data)
+    catch e
+        @test occursin("The tree needs to be fitted first!", string(e))
+    end
+end
+
 @testset "build_tree - Edge Cases" begin
     @testset "Threshold not found" begin
         test_data = [1 2; 1 2; 1 2]
