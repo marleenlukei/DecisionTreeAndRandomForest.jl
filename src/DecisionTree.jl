@@ -146,7 +146,8 @@ end
 """
     $(SIGNATURES)
 
-This function traverses the tree structure of the `DecisionTree` for each datapoint in `data`. It follows the decision rules based on the split criteria and feature values. If the leaf node contains numerical values, its treated as a regreesion problem and the prediction is the average of those values. If a leaf node contains numerical values, it is treated as a regression problem, and the prediction is the average of those values. If the leaf node contains categorical labels, it is treated as a classification problem, and the prediction is the most frequent label (mode) among the labels in the leaf node.
+This function traverses the tree structure of the `DecisionTree` for each datapoint in `data`. It follows the decision rules based on the split criteria and feature values. 
+In case of a classification problem, the prediction is the most frequent label (mode) among the labels in the leaf node. In case of a regression problem, the prediction is the average of those values (mean). 
 
 ## Arguments
 - `tree::DecisionTree`: The trained DecisionTree.

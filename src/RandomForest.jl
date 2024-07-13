@@ -57,8 +57,8 @@ end
 """
     $(SIGNATURES)
 
-This function predicts the labels for each datapoint in the input dataset by using the trained `RandomForest`. 
-Currently, it makes predictions using each individual tree in the forest and then combines the predictions using the most frequent label for each datapoint (Classification Task).
+This function predicts the labels for each datapoint in the input dataset by using the trained `RandomForest`.
+It therefore uses each individual tree in the forest and combines the predictions using either the most frequent label (Classification Task) or the average of the predictions (Regression Task)
 
 ## Arguments
 - `forest::RandomForest`: The trained RandomForest.
